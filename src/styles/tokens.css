@@ -1,0 +1,17 @@
+:root {
+  color-scheme: dark;
+  --color-bg-cave: #101a16;
+  --color-bg-deep: #09110e;
+  --color-panel: #17231d;
+  --color-jade: #74a98f;
+  --color-gold: #d7b56d;
+  --color-danger: #c87b6f;
+  --color-text: #e7e0ce;
+  --color-text-muted: #a8a18f;
+  --color-border: rgb(215 181 109 / 24%);
+  --radius-control: 6px;
+  --radius-panel: 8px;
+  --shadow-panel: 0 18px 50px rgb(2 8 6 / 48%);
+  --font-ui: "Microsoft YaHei UI", "PingFang SC", system-ui, sans-serif;
+  --font-display: "STKaiti", "KaiTi", "Microsoft YaHei UI", sans-serif;
+}
