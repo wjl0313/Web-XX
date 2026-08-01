@@ -35,6 +35,9 @@ describe('修仙化中文显示层', () => {
     expect(ZH_CN_REFERENCE_TEXT.Forest).toBe('灵木谷')
     expect(ZH_CN_REFERENCE_TEXT['Kill Quest']).toBe('诛妖委托')
     expect(ZH_CN_REFERENCE_TEXT['Invalid email or password.']).toBe('道籍或口令有误。')
+    expect(ZH_CN_REFERENCE_TEXT['Veteran Lore']).toBe('宿世见闻')
+    expect(ZH_CN_REFERENCE_TEXT.Soulkeeper).toBe('护魂使')
+    expect(ZH_CN_REFERENCE_TEXT['Legacy of Might']).toBe('力极传承')
     expect(Object.values(ZH_CN_REFERENCE_TEXT).filter((value) => /[A-Za-z]/.test(value))).toEqual([])
   })
 

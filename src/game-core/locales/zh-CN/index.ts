@@ -10,6 +10,7 @@ import { ERRORS_ZH_CN } from './errors'
 import { INTERFACE_ZH_CN } from './interface'
 import { INVENTORY_ZH_CN } from './inventory'
 import { ITEMS_ZH_CN } from './items'
+import { PROGRESSION_ZH_CN } from './progression'
 import { SKILLS_ZH_CN } from './skills'
 import { SOCIAL_ZH_CN } from './social'
 import { SETTINGS_ZH_CN } from './settings'
@@ -27,6 +28,7 @@ export * from './errors'
 export * from './interface'
 export * from './inventory'
 export * from './items'
+export * from './progression'
 export * from './skills'
 export * from './social'
 export * from './settings'
@@ -51,6 +53,7 @@ export const ZH_CN_REFERENCE_TEXT: Readonly<Record<string, string>> = Object.fre
   ...CASINO_ZH_CN,
   ...INTERFACE_ZH_CN,
   ...INVENTORY_ZH_CN,
+  ...PROGRESSION_ZH_CN,
   ...SOCIAL_ZH_CN,
   ...SETTINGS_ZH_CN,
 })

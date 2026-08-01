@@ -52,12 +52,12 @@
 
 ## 中文显示层阶段
 
-- 话术参考的权威术语按 `common`、`characters`、`skills`、`items`、`inventory`、`world`、`creation`、`combat`、`dungeon`、`afk`、`casino`、`about`、`social`、`settings`、`interface`、`errors` 分类放入 `src/game-core/locales/zh-CN/`。新核心角色身份使用中文 ID；英文角色 ID 只保留在冻结数据和旧档兼容边界。
+- 话术参考的权威术语按 `common`、`characters`、`skills`、`items`、`inventory`、`world`、`creation`、`combat`、`progression`、`dungeon`、`afk`、`casino`、`about`、`social`、`settings`、`interface`、`errors` 分类放入 `src/game-core/locales/zh-CN/`。新核心角色身份使用中文 ID；英文角色 ID 只保留在冻结数据和旧档兼容边界。
 - `src/game-core/data/localization.zh-cn.ts` 保留历史兼容别名和参数化话术，权威词库优先级最高；`npm run lint:locale` 检查词表、内容名称与中文运行副本边界。
 - 内容名称第二阶段集中在 `src/game-core/data/localization-content.zh-cn.ts`，覆盖区域、怪物、命名强敌、秘境、任务、材料、装备、随机词缀、套装、武器触发、功法、传承试炼、符纹和坊市丹药；生成数据和存档仍保存英文内部键。
 - 原生实验入口通过 `translateLegacyText()` 使用该词表；默认 `/` 从冻结文件生成隔离的中文运行副本，并合并权威话术、历史兼容别名与完整内容名称。静态 HTML 和动态模板中的完整显示字面量在构建时直接替换；拼接式战报和状态说明先精确转换组成片段，再在实际写入边界按完整句式处理，动态角色/装备等内部 ID 不写回存档。
 - 通用片段转换不处理 `the`、`for`、`of`、`and` 等连接词，也不接受带首尾空白的危险短键；多义词使用明确静态上下文，例如角色容量的 `Slots` 为“道册位”、赌场项目的 `Slots` 为“灵轮机”。该约束用于防止中英文词序拼接、点击换词与重复翻译。
 - `src/game-core/domain/character-identity.ts` 是新玩法读取灵根与传承的唯一正式入口；`native-character-identity.adapter.ts` 负责旧英文存档与中文领域状态之间的双向转换。冻结生成文件不得手改。
 - 运行副本删除冻结页原有的整页 `MutationObserver`、80/500/1800ms 延时扫描、父页面点击后补翻译以及 `Node`、`Element`、`Document` 的全局原型拦截。父 iframe 只注入小屏登录滚动保护，不读取或改写文字。
-- 5 条公告的桌面/移动回归会实际点击本地入口并确认角色库激活；既有角色夹具回归会长等待后进入主游戏、推进教程并确认背包面板，同时比较点击前后的职业和六维文本。隐藏面板回归覆盖设置折叠、功法、队伍、秘境、赌场、坊市、区域与坊市服务弹窗，并会实际生成妖物和攻击以检查动态战报；离线返回、储物袋统计、动态装备名和阵营说明另有确定性样例，确保首次显示即为目标中文且往返不换词。
+- 5 条公告的桌面/移动回归会实际点击本地入口并确认角色库激活；既有角色夹具回归会长等待后进入主游戏、推进教程并确认背包面板，同时比较点击前后的职业和六维文本。隐藏面板回归覆盖设置折叠、功法、队伍、秘境、赌场、坊市、区域、坊市服务、重修/飞升与完整悟道面板，并会实际生成妖物和攻击以检查动态战报；高等级丹医夹具会验证专精选择、无尽悟道、全部分支、推演、预设与方案对比的可见文本不含连续英文字符。
 - 玩法定稿前等级仍显示为“修为等级 N”，不把数字等级擅自映射到具体境界；CloudBase 仍按产品决定延期。

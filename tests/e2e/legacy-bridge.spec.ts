@@ -10,6 +10,16 @@ const existingSlotsFixture = readFileSync(
   new URL('../fixtures/saves/legacy-character-v2.json', import.meta.url),
   'utf8',
 ).trim()
+const highLevelClericSlotsFixture = (() => {
+  const slots = JSON.parse(existingSlotsFixture) as Array<Record<string, unknown> | null>
+  const character = slots[0]!
+  character.cls = 'Cleric'
+  character.level = 129
+  character.gold = 100_000_000
+  character.aa = { points: 0, spent: 0, xpProgress: 0, xpAllocPct: 0, nodes: {}, legacy: {}, legacySpent: 0 }
+  character.prestige = { rank: 0, points: 0, spent: 0, perks: {}, lastStarterGrantRank: 0 }
+  return JSON.stringify(slots)
+})()
 
 const newsFixture = Array.from({ length: 5 }, (_, index) => ({
   id: `news-${index + 1}`,
@@ -179,7 +189,7 @@ test('隐藏面板首次打开即为稳定中文且不会在交互后换词', as
     window.localStorage.setItem('EmberQuest_slots', serializedSlots)
     window.localStorage.setItem('EmberQuest_seenVersion', '1.6.19')
     window.localStorage.setItem('EQ_tourDone', '1')
-  }, existingSlotsFixture)
+  }, highLevelClericSlotsFixture)
 
   await page.goto('/')
   const frame = page.frameLocator('iframe[title="凡修录游戏界面"]')
@@ -256,6 +266,24 @@ test('隐藏面板首次打开即为稳定中文且不会在交互后换词', as
   await expect(servicePopup.locator('#popup-body')).not.toContainText(/Crafting Bench|Shards:|Salvage Gear|Targeted Reroll|Occultist Reforge|Mystic Reforge|Mystic Chest|Faction Tribute|Change Appearance Token|Name Change Token|Race Change Token|Purchase & Use/)
   await frame.locator('#popup-close').click()
 
+  await frame.locator('#pbtn-prestige').dispatchEvent('click')
+  const prestige = frame.locator('#tab-prestige')
+  await expect(prestige).toContainText('重修层数')
+  await expect(prestige).toContainText('宿世见闻')
+  await expect(prestige).toContainText('预计飞升所得')
+  await expect(prestige).not.toContainText(/Prestige Rank|Unspent Prestige Points|Ascension requirement|Estimated ascension reward|Current bonuses|Veteran Lore|Golden Touch|Relic Hunter|Battle Legacy|Ancestral Ward|Ascendant Momentum|Invest 1 Prestige/)
+  expect(await prestige.textContent()).not.toMatch(/[A-Za-z]{2,}/)
+  await frame.locator('#popup-close').click()
+
+  await frame.locator('#pbtn-aa').dispatchEvent('click')
+  const ascension = frame.locator('#tab-aa')
+  await expect(ascension).toContainText('悟道修为进度')
+  await expect(ascension).toContainText('无尽悟道')
+  await expect(ascension).toContainText('力极传承')
+  await expect(ascension).not.toContainText(/Alternate Ascension|Unspent Points|Legacy Ranks|Class Specialization|Choose one specialization|AA XP Progress|XP to AA|Legacy AA|Endless Progression|Legacy of Might|Legacy of the Guard|Endless Wellspring|Fortune's Echo|Sage's Legacy|Start Simulator/)
+  expect(await ascension.textContent()).not.toMatch(/[A-Za-z]{2,}/)
+  await frame.locator('#popup-close').click()
+
   await frame.locator('#tabbtn-combat').dispatchEvent('click')
   await frame.locator('button[onclick="spawnMob()"]')
     .dispatchEvent('click')
@@ -276,6 +304,19 @@ test('隐藏面板首次打开即为稳定中文且不会在交互后换词', as
       tr('Showing Tailored Backpack · Slots 1-40 · Total items: 111 · Active Sets: Fallen God (+18 ATK, +18 DEF)'),
       tr('Radiant Bloodletter Shiv of the Strong'),
       tr('Faction: Ally (500) · Occultist services available.'),
+      tr('You switch targets to '),
+      tr('You cycle targets to '),
+      tr('You sweep the enemy pack for '),
+      tr(' total damage. (-'),
+      tr(' MP)'),
+      tr('Prestige Rank: 0 · Unspent Prestige Points: 0'),
+      tr('Ascension requirement: Level 100+'),
+      tr('Estimated ascension reward: Reach level 100 to earn 1 Prestige Point.'),
+      tr('AA XP Progress: 0/635,049 · Next point in 635,049 AA XP'),
+      tr('XP to AA: 0%'),
+      tr('Legacy of Might · Rank 0'),
+      tr('Current: +0.0% physical and spell damage · Next: +0.8% physical and spell damage'),
+      tr('Invest 5 AA'),
     ]
   })
   expect(translatedSamples).toEqual([
@@ -284,6 +325,19 @@ test('隐藏面板首次打开即为稳定中文且不会在交互后换词', as
     '正在查看 百宝储物袋 · 格位 1–40 · 物品总数：111 · 生效套装：陨神古宝套装（攻击 +18，防御 +18）',
     '流光·饮血短刃·强者',
     '声望：同盟（500）· 淬炼服务现已开放。',
+    '你切换目标至',
+    '你轮换目标至',
+    '你横扫敌群，共造成',
+    '点总伤害（消耗 ',
+    ' 点法力）',
+    '重修层数：0 · 未分配重修点：0',
+    '飞升条件：修为等级 100 以上',
+    '预计飞升所得：修为等级达到 100 后可获得 1 点重修点数。',
+    '悟道修为进度：0/635,049 · 距下一点还需 635,049 点悟道修为',
+    '修为转入悟道：0%',
+    '力极传承 · 层数 0',
+    '当前：+0.0% 物理与功法伤害 · 下一层：+0.8% 物理与功法伤害',
+    '投入 5 点悟道',
   ])
   expect(pageErrors).toEqual([])
 })
