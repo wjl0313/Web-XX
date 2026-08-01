@@ -2,14 +2,17 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 
 import { LEGACY_GAME_PATH } from '../../app/constants'
+import { applyLegacyFrameSafeguards } from '../../app/legacy-frame-safeguards'
 
 type FrameState = 'loading' | 'ready' | 'error'
 
 const state = ref<FrameState>('loading')
 const reloadKey = ref(0)
+const frame = ref<HTMLIFrameElement | null>(null)
 let loadTimeout: number | undefined
+let disposeFrameSafeguards: (() => void) | undefined
 
-const frameSource = computed(() => `${LEGACY_GAME_PATH}?bridge=${reloadKey.value}`)
+const frameSource = computed(() => `${LEGACY_GAME_PATH}?runtime=${reloadKey.value}`)
 
 function clearLoadTimeout() {
   if (loadTimeout !== undefined) {
@@ -27,6 +30,8 @@ function armLoadTimeout() {
 
 function handleLoad() {
   clearLoadTimeout()
+  disposeFrameSafeguards?.()
+  disposeFrameSafeguards = frame.value ? applyLegacyFrameSafeguards(frame.value) : undefined
   state.value = 'ready'
 }
 
@@ -36,13 +41,18 @@ function handleError() {
 }
 
 function reload() {
+  disposeFrameSafeguards?.()
+  disposeFrameSafeguards = undefined
   state.value = 'loading'
   reloadKey.value += 1
   armLoadTimeout()
 }
 
 onMounted(armLoadTimeout)
-onBeforeUnmount(clearLoadTimeout)
+onBeforeUnmount(() => {
+  clearLoadTimeout()
+  disposeFrameSafeguards?.()
+})
 </script>
 
 <template>
@@ -61,6 +71,7 @@ onBeforeUnmount(clearLoadTimeout)
     </div>
 
     <iframe
+      ref="frame"
       :key="reloadKey"
       class="legacy-game__frame"
       :class="{ 'is-ready': state === 'ready' }"

@@ -1,4 +1,9 @@
 node_modules/
 dist/
+cloudbase/dist/
+cloudbaserc.json
+coverage/
+playwright-report/
+test-results/
 *.local
 *.tsbuildinfo

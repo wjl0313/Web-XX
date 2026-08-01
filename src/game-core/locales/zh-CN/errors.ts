@@ -1,0 +1,23 @@
+/** 话术参考第 25 节：登录、保存、网络和操作限制提示。 */
+export const ERRORS_ZH_CN: Readonly<Record<string, string>> = Object.freeze({
+  'Checking account…': '正在查验道籍……',
+  'Signed in successfully.': '道籍验证成功。',
+  'Invalid email or password.': '道籍或口令有误。',
+  'Entered offline mode.': '已经进入离线模式。',
+  'Game saved.': '道途已经保存。',
+  'Saving character…': '正在保存角色数据……',
+  'Cloud sync complete.': '云端同步完成。',
+  'Cloud sync failed. Saved locally.': '云端同步失败，数据已暂存于本地。',
+  'Reconnecting…': '正在重新连接……',
+  'Connection restored.': '连接已经恢复。',
+  'Too many requests. Try again later.': '请求过于频繁，请稍后再试。',
+  'Server is temporarily busy.': '服务器暂时繁忙。',
+  'This action is not available right now.': '当前状态下无法执行此操作。',
+  'The character is in combat.': '角色正在战斗中。',
+  'The character is resting.': '角色正在调息中。',
+  'Insufficient cultivation.': '修为不足。',
+  'Insufficient mana.': '法力不足。',
+  'Insufficient inventory space.': '储物袋空间不足。',
+  'This item is already equipped.': '该物品已经装备。',
+  'The target is no longer valid.': '该目标已经失效。',
+})

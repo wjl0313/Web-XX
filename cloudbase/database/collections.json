@@ -1,0 +1,40 @@
+{
+  "collections": [
+    {
+      "name": "users",
+      "indexes": []
+    },
+    {
+      "name": "characters",
+      "indexes": [
+        { "name": "owner_slot_unique", "unique": true, "fields": [{ "name": "ownerId", "order": "asc" }, { "name": "slot", "order": "asc" }] },
+        { "name": "owner_updated", "unique": false, "fields": [{ "name": "ownerId", "order": "asc" }, { "name": "updatedAt", "order": "desc" }] }
+      ]
+    },
+    {
+      "name": "publications",
+      "indexes": [
+        { "name": "power_rank", "unique": false, "fields": [{ "name": "power", "order": "desc" }] },
+        { "name": "level_rank", "unique": false, "fields": [{ "name": "level", "order": "desc" }] },
+        { "name": "rating_rank", "unique": false, "fields": [{ "name": "rating", "order": "desc" }] },
+        { "name": "kills_rank", "unique": false, "fields": [{ "name": "kills", "order": "desc" }] },
+        { "name": "weekly_xp_rank", "unique": false, "fields": [{ "name": "weeklyXp", "order": "desc" }] },
+        { "name": "weekly_gold_rank", "unique": false, "fields": [{ "name": "weeklyGold", "order": "desc" }] }
+      ]
+    },
+    {
+      "name": "battles",
+      "indexes": [
+        { "name": "attacker_history", "unique": false, "fields": [{ "name": "attackerCharacterId", "order": "asc" }, { "name": "createdAt", "order": "desc" }] },
+        { "name": "defender_history", "unique": false, "fields": [{ "name": "defenderCharacterId", "order": "asc" }, { "name": "createdAt", "order": "desc" }] }
+      ]
+    },
+    {
+      "name": "appearances",
+      "indexes": [
+        { "name": "owner_updated", "unique": false, "fields": [{ "name": "ownerId", "order": "asc" }, { "name": "updatedAt", "order": "desc" }] },
+        { "name": "task_unique", "unique": true, "fields": [{ "name": "taskId", "order": "asc" }] }
+      ]
+    }
+  ]
+}

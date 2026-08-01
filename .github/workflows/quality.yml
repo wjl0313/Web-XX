@@ -1,0 +1,30 @@
+name: 质量检查
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 配置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.19.0
+          cache: npm
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 安装 Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: 执行完整验证
+        run: npm run verify:full

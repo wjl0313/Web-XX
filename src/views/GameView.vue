@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { useUiStore } from '../stores/ui.store'
-import GameLayout from '../layouts/GameLayout.vue'
-
-const uiStore = useUiStore()
+import { featureFlags } from '../app/featureFlags'
+import LegacyGameFrame from '../components/common/LegacyGameFrame.vue'
+import NativeGameApp from '../components/native/NativeGameApp.vue'
 </script>
 
 <template>
-  <GameLayout v-if="uiStore.screen === 'game'" />
+  <LegacyGameFrame v-if="featureFlags.legacyGameBridge" />
+  <NativeGameApp v-else />
 </template>

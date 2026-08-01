@@ -4,10 +4,13 @@ import { fileURLToPath } from 'node:url'
 import { defineConfig, type Plugin } from 'vite'
 import vue from '@vitejs/plugin-vue'
 
+import { createLocalizedLegacyRuntime } from './src/app/legacy-runtime-source'
+
 const legacyFile = fileURLToPath(new URL('./legacy/fanxiulu-monolith.html', import.meta.url))
 const legacyUrl = '/legacy/fanxiulu-monolith.html'
 
-function legacyGameBridge(): Plugin {
+function localizedLegacyGame(): Plugin {
+  const localizedRuntime = () => createLocalizedLegacyRuntime(readFileSync(legacyFile, 'utf8'))
   const serveLegacyFile = () => {
     return (
       request: { url?: string },
@@ -21,12 +24,12 @@ function legacyGameBridge(): Plugin {
 
       response.setHeader('Content-Type', 'text/html; charset=utf-8')
       response.setHeader('Cache-Control', 'no-cache')
-      response.end(readFileSync(legacyFile))
+      response.end(Buffer.from(localizedRuntime(), 'utf8'))
     }
   }
 
   return {
-    name: 'fanxiulu-legacy-game-bridge',
+    name: 'fanxiulu-localized-legacy-runtime',
     configureServer(server) {
       server.middlewares.use(serveLegacyFile())
     },
@@ -37,14 +40,14 @@ function legacyGameBridge(): Plugin {
       this.emitFile({
         type: 'asset',
         fileName: legacyUrl.slice(1),
-        source: readFileSync(legacyFile),
+        source: localizedRuntime(),
       })
     },
   }
 }
 
 export default defineConfig({
-  plugins: [legacyGameBridge(), vue()],
+  plugins: [localizedLegacyGame(), vue()],
   server: {
     host: '127.0.0.1',
     port: 5173,
