@@ -3,11 +3,16 @@ import { onMounted } from 'vue'
 
 import { useSaveStore } from '../../stores/save.store'
 import { useUiStore } from '../../stores/ui.store'
-import CharacterRoster from './CharacterRoster.vue'
+import { useBalanceStore } from '../../stores/balance.store'
+import CharacterLibraryView from '../../views/CharacterLibraryView.vue'
+import LoginView from '../../views/LoginView.vue'
+import NativeOverlayHost from './NativeOverlayHost.vue'
 import NativeGameShell from './NativeGameShell.vue'
 
 const saves = useSaveStore()
 const ui = useUiStore()
+const balance = useBalanceStore()
+balance.initialize()
 
 onMounted(async () => {
   if (!saves.loaded) await saves.initialize()
@@ -31,7 +36,9 @@ onMounted(async () => {
       <button class="button button--primary" type="button" @click="saves.initialize()">重新读取</button>
     </div>
 
-    <CharacterRoster v-else-if="ui.screen === 'roster'" />
+    <LoginView v-else-if="ui.screen === 'login'" />
+    <CharacterLibraryView v-else-if="ui.screen === 'roster'" />
     <NativeGameShell v-else />
+    <NativeOverlayHost />
   </div>
 </template>

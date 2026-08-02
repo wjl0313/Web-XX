@@ -1,0 +1,404 @@
+[
+  {
+    "version": "1.6.19",
+    "name": "栖月",
+    "race": "Human",
+    "cls": "Cleric",
+    "level": 28,
+    "xp": 3420,
+    "xpNext": 5600,
+    "hp": 780,
+    "maxHp": 920,
+    "mp": 1110,
+    "maxMp": 1280,
+    "atk": 96,
+    "def": 82,
+    "mpRegen": 17,
+    "gold": 8640,
+    "faction": 44,
+    "healpotions": 18,
+    "manapotions": 24,
+    "healpotions_lhp": 0,
+    "manapotions_lmp": 0,
+    "healpotions_ghp": 0,
+    "manapotions_gmp": 0,
+    "healpotions_shp": 0,
+    "manapotions_smp": 0,
+    "healpotions_heroic": 0,
+    "manapotions_heroic": 0,
+    "healpotions_epic": 0,
+    "manapotions_epic": 0,
+    "healpotions_legendary": 0,
+    "manapotions_legendary": 0,
+    "zone": 24,
+    "bindZone": 22,
+    "corpse": null,
+    "inventory": [
+      {
+        "base": "Runed Mace",
+        "name": "Runed Mace",
+        "quality": "Rare",
+        "ilvl": 27,
+        "levelReq": 24,
+        "rolls": {
+          "atk": 8,
+          "mp": 30,
+          "wis": 2
+        },
+        "favorite": true
+      },
+      {
+        "base": "Frostwoven Mantle",
+        "name": "Frostwoven Mantle",
+        "quality": "Magic",
+        "ilvl": 26,
+        "levelReq": 23,
+        "rolls": {
+          "def": 7,
+          "hp": 48
+        }
+      },
+      {
+        "base": "Storm Orb",
+        "name": "Storm Orb",
+        "quality": "Rare",
+        "ilvl": 28,
+        "levelReq": 25,
+        "rolls": {
+          "atk": 5,
+          "mp": 42,
+          "int": 2
+        },
+        "locked": true
+      },
+      "Greater Healing Potion",
+      "Greater Mana Potion",
+      "Recipe Scroll"
+    ],
+    "runeStash": [
+      "Rune: El",
+      "Rune: Tir",
+      "Rune: Tal"
+    ],
+    "discoveredRunewords": [],
+    "bags": [
+      "Worn Pouch",
+      "Worn Pouch",
+      "Worn Pouch",
+      "Worn Pouch"
+    ],
+    "equipment": {
+      "weapon": {
+        "base": "Runed Mace",
+        "name": "Runed Mace",
+        "quality": "Rare",
+        "ilvl": 28,
+        "levelReq": 25,
+        "rolls": {
+          "atk": 10,
+          "mp": 36,
+          "wis": 3
+        }
+      },
+      "chest": {
+        "base": "Frostwoven Mantle",
+        "name": "Frostwoven Mantle",
+        "quality": "Rare",
+        "ilvl": 27,
+        "levelReq": 24,
+        "rolls": {
+          "def": 9,
+          "hp": 62,
+          "mp": 30
+        }
+      },
+      "legs": {
+        "base": "Runed Greaves",
+        "name": "Runed Greaves",
+        "quality": "Magic",
+        "ilvl": 26,
+        "levelReq": 23,
+        "rolls": {
+          "def": 6,
+          "hp": 42
+        }
+      },
+      "feet": {
+        "base": "Glacier Treads",
+        "name": "Glacier Treads",
+        "quality": "Magic",
+        "ilvl": 27,
+        "levelReq": 24,
+        "rolls": {
+          "def": 5,
+          "hp": 38
+        }
+      },
+      "offhand": {
+        "base": "Storm Orb",
+        "name": "Storm Orb",
+        "quality": "Rare",
+        "ilvl": 28,
+        "levelReq": 25,
+        "rolls": {
+          "atk": 6,
+          "mp": 54,
+          "int": 3
+        }
+      },
+      "charm": {
+        "base": "Astral Loop",
+        "name": "Astral Loop",
+        "quality": "Rare",
+        "ilvl": 27,
+        "levelReq": 24,
+        "rolls": {
+          "mp": 48,
+          "wis": 3,
+          "cha": 2
+        }
+      }
+    },
+    "knownSpells": [
+      "holy_bolt",
+      "greater_heal",
+      "benediction",
+      "clr_sanctuary"
+    ],
+    "memorizedSpells": [
+      "holy_bolt",
+      "greater_heal",
+      "benediction",
+      "clr_sanctuary"
+    ],
+    "spellShopInitialized": true,
+    "spellCooldowns": {
+      "greater_heal": 1785513605000
+    },
+    "autoUseSkills": true,
+    "autoSkillSlots": [
+      true,
+      true,
+      true,
+      false,
+      true,
+      true
+    ],
+    "quests": [
+      {
+        "name": "Sanctum Purge",
+        "mob": "Fear Elemental",
+        "count": 10,
+        "prog": 8,
+        "done": false
+      },
+      {
+        "name": "Crypt Warden Hunt",
+        "mob": "Crypt Warden",
+        "count": 6,
+        "prog": 6,
+        "done": true
+      }
+    ],
+    "statusEffects": [],
+    "abilities": {
+      "str": 11,
+      "dex": 9,
+      "con": 12,
+      "int": 10,
+      "wis": 15,
+      "cha": 12
+    },
+    "pets": {
+      "active": "none",
+      "owned": [],
+      "lastActionAt": 0
+    },
+    "group": [],
+    "lfg": false,
+    "lfgParty": [],
+    "partyLineup": [],
+    "partyHp": {
+      "units": {}
+    },
+    "groupSplitGold": false,
+    "groupMercs": [],
+    "groupMercNames": [],
+    "groupMercGear": [],
+    "mercenary": {
+      "type": "none",
+      "customName": "",
+      "totalPaid": 0,
+      "hires": 0,
+      "lastHiredAt": 0,
+      "totalUpkeepPaid": 0,
+      "nextUpkeepAt": 0,
+      "lastUpkeepPaidAt": 0,
+      "actionReadyAt": 0,
+      "gear": {
+        "weapon": null,
+        "chest": null,
+        "legs": null,
+        "feet": null,
+        "offhand": null,
+        "charm": null
+      }
+    },
+    "prestige": {
+      "rank": 0,
+      "points": 0,
+      "spent": 0,
+      "perks": {
+        "xp": 0,
+        "gold": 0,
+        "loot": 0,
+        "power": 0,
+        "ward": 0
+      },
+      "lastStarterGrantRank": 0
+    },
+    "aa": {
+      "points": 0,
+      "spent": 0,
+      "nodes": {},
+      "xpProgress": 0,
+      "xpAllocPct": 0,
+      "extraSpellSlots": 2
+    },
+    "crafting": {
+      "shards": {
+        "common": 0,
+        "magic": 0,
+        "rare": 0,
+        "epic": 0
+      }
+    },
+    "huntTargets": {
+      "24": "Mordana Cultist"
+    },
+    "huntStreak": {
+      "zone": null,
+      "target": "",
+      "count": 0
+    },
+    "afkProfiles": {
+      "slot1": {
+        "afkGoal": "balanced",
+        "zone": 24,
+        "huntTarget": "Mordana Cultist",
+        "autoRestHpPercent": 45,
+        "autoRestMpPercent": 30,
+        "afkIntervalMs": 1200
+      },
+      "slot2": null,
+      "slot3": null
+    },
+    "loadouts": {
+      "slot1": null,
+      "slot2": null,
+      "slot3": null
+    },
+    "activeLoadout": "",
+    "afkRules": {
+      "autoBuyPots": true,
+      "potMin": 5,
+      "autoAdvanceContract": true
+    },
+    "afkGoal": "balanced",
+    "afkEnabled": false,
+    "lastAfkAt": null,
+    "classQuest": {
+      "name": "Epic Trial: Light Everlasting",
+      "target": "Aegis Herald",
+      "count": 28,
+      "progress": 0,
+      "completed": false,
+      "claimed": false
+    },
+    "dungeon": {
+      "active": false,
+      "floor": 1,
+      "best": 1,
+      "checkpoint": 1,
+      "marks": 0,
+      "essence": 0,
+      "bossesCleared": 0,
+      "relicRanks": {},
+      "theme": "abyssal",
+      "autoDescend": false,
+      "autoLeaveOnDeath": false,
+      "modifier": "balanced"
+    },
+    "lootFilter": {
+      "autoSellJunk": false,
+      "autoSellNormalGear": false,
+      "autoSellBlueMagicGear": false,
+      "autoSellRareGear": false,
+      "autoSellEpicGear": false,
+      "autoSellLegendaryGear": false,
+      "autoSellMythicGear": false,
+      "autoSellRunewordGear": false,
+      "protectRarePlus": true,
+      "autoEquipEmptySlots": false,
+      "autoEquipUpgradedEquipment": false,
+      "autoVendorOverflow": false,
+      "autoSellDisplacedGear": false,
+      "autoEquipBeforeAutoSell": false
+    },
+    "lootFilterPreset": "balanced",
+    "hardcore": false,
+    "stats": {
+      "kills": 1420,
+      "namedKills": 18,
+      "eliteKills": 44,
+      "bossKills": 3,
+      "deaths": 0,
+      "goldEarned": 31800,
+      "xpEarned": 64200,
+      "dailiesClaimed": 0,
+      "loginDays": 0,
+      "weeklyTiersClaimed": 0
+    },
+    "achievements": {},
+    "activeTitle": "",
+    "unlockedTitles": [],
+    "dailyQuests": [],
+    "dailyReset": 0,
+    "bossCooldowns": {},
+    "logFilters": {
+      "dmg": true,
+      "loot": true,
+      "info": true
+    },
+    "lastSaved": 1785513600000,
+    "appearance": {
+      "sex": "female",
+      "hairstyle": "云髻",
+      "tone": "白皙",
+      "robe": "月白"
+    }
+  },
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null
+]

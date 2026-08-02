@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   ALL_ITEM_DATA,
   ALL_WEAPON_PROCS,
+  BOSS_BY_ZONE,
   CLASS_EPIC_CONTENT,
   CONTAINER_ITEMS,
   CULTIVATION_PHRASES,
@@ -25,6 +26,17 @@ import {
 } from '../../src/game-core/data'
 
 describe('修仙化中文显示层', () => {
+  it('translates dynamic combat rank prefixes together with the mob name', () => {
+    expect(translateLegacyText('[Elite] Field Rat')).toBe('【精英】荒野鼠妖')
+    expect(translateLegacyText('[Named] a rabid rat king')).not.toContain('[Named]')
+    expect(translateLegacyText('[Boss] Vermin Tyrant')).toBe('【区域首领】鼠群暴君')
+  })
+
+  it('translates dynamically generated equipment names without rewriting save data', () => {
+    expect(translateLegacyText('Jagged Rusty Dagger of Slaying')).toBe('锯齿·锈蚀短刃·诛邪')
+    expect(translateLegacyText('Mythic Godshard Edge of the Ancients')).toBe('通天·神骸剑锋·远古')
+  })
+
   it('keeps the supplied reference terminology as the authoritative display layer', () => {
     expect(ZH_CN_REFERENCE_TEXT.Level).toBe('修为等级')
     expect(ZH_CN_REFERENCE_TEXT.Human).toBe('五行杂灵根')
@@ -82,6 +94,7 @@ describe('修仙化中文显示层', () => {
     const sourceText = [
       ...ZONES.flatMap((zone) => [zone.name, zone.rare, ...zone.mobs]),
       ...Object.values(NAMED_BY_ZONE).flat(),
+      ...Object.values(BOSS_BY_ZONE).flatMap((boss) => [boss.name, boss.mob]),
       ...NAMED_MECHANICS.map((entry) => entry.name),
       ...ZONE_EVENTS.map((entry) => entry.name),
       ...Object.values(DUNGEON_THEMES).flatMap((theme) => [theme.label, ...theme.mobs]),

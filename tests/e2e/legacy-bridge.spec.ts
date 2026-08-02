@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
 
 const emptySlotsFixture = readFileSync(
   new URL('../fixtures/saves/empty-slots-v1.json', import.meta.url),
@@ -31,6 +31,15 @@ const newsFixture = Array.from({ length: 5 }, (_, index) => ({
   expires_at: null,
 }))
 
+async function openGamePanel(page: Page, name: string) {
+  const mobileNavigation = page.getByRole('navigation', { name: '移动端功能导航' })
+  if (await mobileNavigation.isVisible()) {
+    await mobileNavigation.getByRole('button', { name }).click()
+    return
+  }
+  await page.getByRole('navigation', { name: '游戏功能' }).getByRole('button', { name }).click()
+}
+
 test.beforeEach(async ({ page }) => {
   await page.route('**/supabase-js@2', async (route) => {
     await route.fulfill({
@@ -51,20 +60,31 @@ test.beforeEach(async ({ page }) => {
   }, emptySlotsFixture)
 })
 
-test('实验入口加载原生角色道册并创建角色', async ({ page }) => {
-  await page.goto('/?native=1')
+test('默认入口加载原生角色道册并通过四步流程创建角色', async ({ page }) => {
+  await page.goto('/')
   await expect(page).toHaveTitle('凡修录')
   await expect(page.locator('html')).toHaveAttribute('lang', 'zh-CN')
+  await expect(page.getByRole('heading', { name: '凡修录', exact: true })).toBeVisible()
+  await page.getByRole('button', { name: '进入本地修仙界' }).click()
   await expect(page.getByRole('heading', { name: '选择修士' })).toBeVisible()
   await expect(page.locator('iframe')).toHaveCount(0)
 
   await page.getByRole('button', { name: '槽位 1 创建角色' }).click()
+  await expect(page.getByRole('group', { name: '选择灵根与体质' })).toBeVisible()
+  await page.getByRole('button', { name: '下一步' }).click()
+  await expect(page.getByRole('group', { name: '选择初始传承' })).toBeVisible()
+  await page.getByRole('button', { name: '下一步' }).click()
+  await expect(page.getByRole('group', { name: '设置角色外观' })).toBeVisible()
+  await page.getByRole('button', { name: '下一步' }).click()
   await page.getByLabel('道号').fill('云岫')
   await page.getByRole('button', { name: '创建并进入' }).click()
 
-  await expect(page.getByRole('heading', { name: '云岫' })).toBeVisible()
-  await expect(page.getByRole('navigation', { name: '游戏功能' })).toBeVisible()
-  await expect(page.getByRole('heading', { name: '遭遇' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '云岫', level: 1 })).toBeVisible()
+  const primaryNavigation = (page.viewportSize()?.width || 1280) <= 900
+    ? page.getByRole('navigation', { name: '移动端功能导航' })
+    : page.getByRole('navigation', { name: '游戏功能' })
+  await expect(primaryNavigation).toBeVisible()
+  await expect(page.getByRole('heading', { name: '斗法场景' })).toBeVisible()
 
   const metrics = await page.evaluate(() => ({
     viewportWidth: document.documentElement.clientWidth,
@@ -75,25 +95,49 @@ test('实验入口加载原生角色道册并创建角色', async ({ page }) => 
 })
 
 test('实验原生界面可以寻敌并切换主要面板', async ({ page }) => {
-  await page.goto('/?native=1')
+  await page.goto('/?mode=equivalent')
+  await page.getByRole('button', { name: '进入本地修仙界' }).click()
   await page.getByRole('button', { name: '槽位 1 创建角色' }).click()
+  await page.getByRole('button', { name: '下一步' }).click()
+  await page.getByRole('button', { name: '下一步' }).click()
+  await page.getByRole('button', { name: '下一步' }).click()
   await page.getByLabel('道号').fill('归鹤')
   await page.getByRole('button', { name: '创建并进入' }).click()
 
-  await page.getByRole('button', { name: '寻敌' }).click()
+  await page.getByRole('button', { name: '寻敌', exact: true }).click()
   await expect(page.getByText('交战中')).toBeVisible()
 
-  const menu = page.getByRole('button', { name: '打开导航' })
-  if (await menu.isVisible()) await menu.click()
-  await page.getByRole('button', { name: '储物袋' }).click()
+  await openGamePanel(page, '储物袋')
   await expect(page.getByRole('heading', { name: '储物袋', exact: true })).toBeVisible()
-  if (await menu.isVisible()) await menu.click()
-  await page.getByRole('button', { name: '历练区域' }).click()
+  await openGamePanel(page, '历练区域')
   await expect(page.getByRole('heading', { name: '历练区域', exact: true })).toBeVisible()
 })
 
-test('默认入口加载冻结的旧版登录页', async ({ page }) => {
+test('v2 模式进入原生玩法且不加载旧版 iframe', async ({ page }) => {
+  await page.goto('/?mode=v2')
+
+  await expect(page.getByRole('button', { name: '进入本地修仙界' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '新玩法尚未开放' })).toHaveCount(0)
+  await expect(page.locator('iframe')).toHaveCount(0)
+})
+
+test('损坏旧存档会被隔离但不会把默认入口退回 iframe', async ({ page }) => {
+  await page.addInitScript(() => {
+    window.localStorage.setItem('EmberQuest_slots', '{')
+  })
+
   await page.goto('/')
+  await expect(page.locator('iframe')).toHaveCount(0)
+  await expect(page.getByText(/检测到 1 项旧存档问题/)).toBeVisible()
+  await page.getByRole('button', { name: '进入本地修仙界' }).click()
+  await expect(page.getByRole('heading', { name: '选择修士' })).toBeVisible()
+
+  const quarantined = await page.evaluate(() => Object.keys(window.localStorage).some((key) => key.startsWith('EmberQuest_slots.corrupt.')))
+  expect(quarantined).toBe(true)
+})
+
+test('显式 legacy 入口加载冻结的旧版登录页', async ({ page }) => {
+  await page.goto('/?mode=legacy')
 
   const frame = page.frameLocator('iframe[title="凡修录游戏界面"]')
   await expect(frame.getByRole('heading', { name: '凡修录', exact: true })).toBeVisible()
@@ -116,7 +160,7 @@ test('冻结版本的本地模式仍可进入角色道册', async ({ page }) => 
   const pageErrors: string[] = []
   page.on('pageerror', (error) => pageErrors.push(error.message))
 
-  await page.goto('/')
+  await page.goto('/?mode=legacy')
   const frame = page.frameLocator('iframe[title="凡修录游戏界面"]')
   const localEntry = frame.locator('#login-local')
 
@@ -149,7 +193,7 @@ test('冻结版本长等待后仍可进入主游戏并切换面板', async ({ pa
     window.localStorage.setItem('EmberQuest_seenVersion', '1.6.19')
   }, existingSlotsFixture)
 
-  await page.goto('/')
+  await page.goto('/?mode=legacy')
   const frame = page.frameLocator('iframe[title="凡修录游戏界面"]')
   await page.waitForTimeout(3_000)
   await frame.locator('#login-local').click()
@@ -191,7 +235,7 @@ test('隐藏面板首次打开即为稳定中文且不会在交互后换词', as
     window.localStorage.setItem('EQ_tourDone', '1')
   }, highLevelClericSlotsFixture)
 
-  await page.goto('/')
+  await page.goto('/?mode=legacy')
   const frame = page.frameLocator('iframe[title="凡修录游戏界面"]')
   await page.waitForTimeout(3_000)
   await frame.locator('#login-local').click()

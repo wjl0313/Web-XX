@@ -3,11 +3,13 @@
   "functionRoot": "./cloudbase/dist",
   "functions": [
     { "name": "bootstrap-user", "dir": "./cloudbase/dist/game", "runtime": "Nodejs20.19", "handler": "index.main", "timeout": 10, "installDependency": true },
+    { "name": "bind-account", "dir": "./cloudbase/dist/game", "runtime": "Nodejs20.19", "handler": "index.main", "timeout": 10, "installDependency": true },
     { "name": "create-character", "dir": "./cloudbase/dist/game", "runtime": "Nodejs20.19", "handler": "index.main", "timeout": 10, "installDependency": true },
     { "name": "load-characters", "dir": "./cloudbase/dist/game", "runtime": "Nodejs20.19", "handler": "index.main", "timeout": 10, "installDependency": true },
     { "name": "save-character", "dir": "./cloudbase/dist/game", "runtime": "Nodejs20.19", "handler": "index.main", "timeout": 15, "installDependency": true },
     { "name": "claim-afk-reward", "dir": "./cloudbase/dist/game", "runtime": "Nodejs20.19", "handler": "index.main", "timeout": 20, "installDependency": true },
     { "name": "equip-item", "dir": "./cloudbase/dist/game", "runtime": "Nodejs20.19", "handler": "index.main", "timeout": 10, "installDependency": true },
+    { "name": "breakthrough-character", "dir": "./cloudbase/dist/game", "runtime": "Nodejs20.19", "handler": "index.main", "timeout": 10, "installDependency": true },
     { "name": "publish-character", "dir": "./cloudbase/dist/game", "runtime": "Nodejs20.19", "handler": "index.main", "timeout": 10, "installDependency": true },
     { "name": "challenge-player", "dir": "./cloudbase/dist/game", "runtime": "Nodejs20.19", "handler": "index.main", "timeout": 20, "installDependency": true },
     { "name": "get-leaderboard", "dir": "./cloudbase/dist/game", "runtime": "Nodejs20.19", "handler": "index.main", "timeout": 10, "installDependency": true },

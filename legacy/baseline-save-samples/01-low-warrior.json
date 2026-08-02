@@ -1,0 +1,296 @@
+[
+  {
+    "version": "1.6.19",
+    "name": "青锋",
+    "race": "Human",
+    "cls": "Warrior",
+    "level": 4,
+    "xp": 165,
+    "xpNext": 400,
+    "hp": 208,
+    "maxHp": 208,
+    "mp": 52,
+    "maxMp": 52,
+    "atk": 24,
+    "def": 17,
+    "mpRegen": 2,
+    "gold": 86,
+    "faction": 0,
+    "healpotions": 3,
+    "manapotions": 3,
+    "healpotions_lhp": 0,
+    "manapotions_lmp": 0,
+    "healpotions_ghp": 0,
+    "manapotions_gmp": 0,
+    "healpotions_shp": 0,
+    "manapotions_smp": 0,
+    "healpotions_heroic": 0,
+    "manapotions_heroic": 0,
+    "healpotions_epic": 0,
+    "manapotions_epic": 0,
+    "healpotions_legendary": 0,
+    "manapotions_legendary": 0,
+    "zone": 0,
+    "bindZone": 0,
+    "corpse": null,
+    "inventory": [
+      "Bronze Hatchet",
+      {
+        "base": "Tattered Robe",
+        "name": "Tattered Robe",
+        "quality": "Magic",
+        "ilvl": 3,
+        "levelReq": 1,
+        "rolls": {
+          "def": 2,
+          "hp": 12
+        },
+        "locked": true
+      },
+      "Minor Healing Potion"
+    ],
+    "runeStash": [],
+    "discoveredRunewords": [],
+    "bags": [
+      "Worn Pouch",
+      "Worn Pouch",
+      "Worn Pouch",
+      "Worn Pouch"
+    ],
+    "equipment": {
+      "weapon": {
+        "base": "Worn Shortsword",
+        "name": "Worn Shortsword",
+        "quality": "Magic",
+        "ilvl": 4,
+        "levelReq": 1,
+        "rolls": {
+          "atk": 3
+        }
+      },
+      "chest": null,
+      "legs": "Patchwork Leggings",
+      "feet": "Rawhide Boots",
+      "offhand": null,
+      "charm": null
+    },
+    "knownSpells": [
+      "shield_slam",
+      "taunting_blow"
+    ],
+    "memorizedSpells": [
+      "shield_slam",
+      "taunting_blow"
+    ],
+    "spellShopInitialized": true,
+    "spellCooldowns": {},
+    "autoUseSkills": true,
+    "autoSkillSlots": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "quests": [
+      {
+        "name": "Rat Extermination",
+        "mob": "Field Rat",
+        "count": 5,
+        "prog": 3,
+        "done": false
+      }
+    ],
+    "statusEffects": [],
+    "abilities": {
+      "str": 15,
+      "dex": 12,
+      "con": 14,
+      "int": 8,
+      "wis": 10,
+      "cha": 9
+    },
+    "pets": {
+      "active": "none",
+      "owned": [],
+      "lastActionAt": 0
+    },
+    "group": [],
+    "lfg": false,
+    "lfgParty": [],
+    "partyLineup": [],
+    "partyHp": {
+      "units": {}
+    },
+    "groupSplitGold": false,
+    "groupMercs": [],
+    "groupMercNames": [],
+    "groupMercGear": [],
+    "mercenary": {
+      "type": "none",
+      "customName": "",
+      "totalPaid": 0,
+      "hires": 0,
+      "lastHiredAt": 0,
+      "totalUpkeepPaid": 0,
+      "nextUpkeepAt": 0,
+      "lastUpkeepPaidAt": 0,
+      "actionReadyAt": 0,
+      "gear": {
+        "weapon": null,
+        "chest": null,
+        "legs": null,
+        "feet": null,
+        "offhand": null,
+        "charm": null
+      }
+    },
+    "prestige": {
+      "rank": 0,
+      "points": 0,
+      "spent": 0,
+      "perks": {
+        "xp": 0,
+        "gold": 0,
+        "loot": 0,
+        "power": 0,
+        "ward": 0
+      },
+      "lastStarterGrantRank": 0
+    },
+    "aa": {
+      "points": 0,
+      "spent": 0,
+      "nodes": {},
+      "xpProgress": 0,
+      "xpAllocPct": 0
+    },
+    "crafting": {
+      "shards": {
+        "common": 0,
+        "magic": 0,
+        "rare": 0,
+        "epic": 0
+      }
+    },
+    "huntTargets": {},
+    "huntStreak": {
+      "zone": null,
+      "target": "",
+      "count": 0
+    },
+    "afkProfiles": {
+      "slot1": null,
+      "slot2": null,
+      "slot3": null
+    },
+    "loadouts": {
+      "slot1": null,
+      "slot2": null,
+      "slot3": null
+    },
+    "activeLoadout": "",
+    "afkRules": {
+      "autoBuyPots": true,
+      "potMin": 5,
+      "autoAdvanceContract": true
+    },
+    "afkGoal": "balanced",
+    "afkEnabled": false,
+    "lastAfkAt": null,
+    "classQuest": {
+      "name": "Epic Trial: Steel Oath",
+      "target": "Asmodean Servant",
+      "count": 30,
+      "progress": 0,
+      "completed": false,
+      "claimed": false
+    },
+    "dungeon": {
+      "active": false,
+      "floor": 1,
+      "best": 1,
+      "checkpoint": 1,
+      "marks": 0,
+      "essence": 0,
+      "bossesCleared": 0,
+      "relicRanks": {},
+      "theme": "abyssal",
+      "autoDescend": false,
+      "autoLeaveOnDeath": false,
+      "modifier": "balanced"
+    },
+    "lootFilter": {
+      "autoSellJunk": false,
+      "autoSellNormalGear": false,
+      "autoSellBlueMagicGear": false,
+      "autoSellRareGear": false,
+      "autoSellEpicGear": false,
+      "autoSellLegendaryGear": false,
+      "autoSellMythicGear": false,
+      "autoSellRunewordGear": false,
+      "protectRarePlus": true,
+      "autoEquipEmptySlots": false,
+      "autoEquipUpgradedEquipment": false,
+      "autoVendorOverflow": false,
+      "autoSellDisplacedGear": false,
+      "autoEquipBeforeAutoSell": false
+    },
+    "lootFilterPreset": "balanced",
+    "hardcore": false,
+    "stats": {
+      "kills": 14,
+      "namedKills": 0,
+      "eliteKills": 0,
+      "bossKills": 0,
+      "deaths": 0,
+      "goldEarned": 86,
+      "xpEarned": 365,
+      "dailiesClaimed": 0,
+      "loginDays": 0,
+      "weeklyTiersClaimed": 0
+    },
+    "achievements": {},
+    "activeTitle": "",
+    "unlockedTitles": [],
+    "dailyQuests": [],
+    "dailyReset": 0,
+    "bossCooldowns": {},
+    "logFilters": {
+      "dmg": true,
+      "loot": true,
+      "info": true
+    },
+    "lastSaved": 1785513600000,
+    "appearance": {
+      "sex": "male",
+      "hairstyle": "束发",
+      "tone": "自然",
+      "robe": "青衣"
+    }
+  },
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null
+]

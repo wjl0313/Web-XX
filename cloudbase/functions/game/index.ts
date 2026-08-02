@@ -1,4 +1,4 @@
-// This one source directory is deployed under all ten P0 function names.
+// This source directory is deployed under every P2 game function name.
 // The trusted function name comes from CloudBase runtime context, never from the request body.
 import cloudbase from '@cloudbase/node-sdk'
 
@@ -18,8 +18,8 @@ function resolveIdentity(): GameCloudIdentity | null {
   if (!userId) return null
   return {
     userId,
-    anonymous: false,
-    displayName: null,
+    anonymous: Boolean((info as any).anonymous || (info as any).isAnonymous),
+    displayName: typeof (info as any).displayName === 'string' ? (info as any).displayName : null,
   }
 }
 

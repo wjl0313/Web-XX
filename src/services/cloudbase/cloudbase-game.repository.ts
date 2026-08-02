@@ -1,4 +1,5 @@
 import type {
+  BreakthroughCloudCharacterInput,
   ChallengePlayerInput,
   ClaimAfkRewardInput,
   ClaimAfkRewardResult,
@@ -15,15 +16,27 @@ import type {
 } from '../../repositories/game-cloud.repository'
 import type { CloudFunctionClient } from './cloud-function.client'
 
+export interface CloudBaseAnonymousAuth {
+  signInAnonymously(): Promise<unknown>
+}
+
 function payload(value: object): Record<string, unknown> {
   return value as Record<string, unknown>
 }
 
 export class CloudBaseGameRepository implements GameCloudRepository {
-  constructor(private readonly client: CloudFunctionClient) {}
+  constructor(
+    private readonly client: CloudFunctionClient,
+    private readonly auth: CloudBaseAnonymousAuth | null = null,
+  ) {}
 
-  signInAnonymously(): Promise<UserSession> {
+  async signInAnonymously(): Promise<UserSession> {
+    await this.auth?.signInAnonymously()
     return this.client.invoke<UserSession>('bootstrap-user')
+  }
+
+  bindAccount(displayName: string): Promise<UserSession> {
+    return this.client.invoke<UserSession>('bind-account', { displayName })
   }
 
   createCharacter(input: CreateCloudCharacterInput): Promise<CloudCharacterSave> {
@@ -44,6 +57,10 @@ export class CloudBaseGameRepository implements GameCloudRepository {
 
   equipItem(input: EquipCloudItemInput): Promise<CloudCharacterSave> {
     return this.client.invoke<CloudCharacterSave>('equip-item', payload(input))
+  }
+
+  breakthroughCharacter(input: BreakthroughCloudCharacterInput): Promise<CloudCharacterSave> {
+    return this.client.invoke<CloudCharacterSave>('breakthrough-character', payload(input))
   }
 
   async publishCharacter(characterId: string): Promise<void> {

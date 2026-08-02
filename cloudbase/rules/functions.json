@@ -1,11 +1,13 @@
 {
   "*": { "invoke": false },
   "bootstrap-user": { "invoke": "auth != null" },
+  "bind-account": { "invoke": "auth != null" },
   "create-character": { "invoke": "auth != null" },
   "load-characters": { "invoke": "auth != null" },
   "save-character": { "invoke": "auth != null" },
   "claim-afk-reward": { "invoke": "auth != null" },
   "equip-item": { "invoke": "auth != null" },
+  "breakthrough-character": { "invoke": "auth != null" },
   "publish-character": { "invoke": "auth != null" },
   "challenge-player": { "invoke": "auth != null" },
   "get-leaderboard": { "invoke": "auth != null" },

@@ -1,5 +1,6 @@
 import type { LegacyCharacterSave } from '../game-core/save'
 import type { LegacyAfkSummary } from '../game-core/systems/afk'
+import type { V2OfflineSummary } from '../game-core/rulesets/v2'
 
 export interface UserSession {
   userId: string
@@ -22,6 +23,11 @@ export interface CreateCloudCharacterInput {
   race: string
   classId: string
   hardcore?: boolean
+  ruleset?: 'legacy' | 'v2'
+  rootId?: string
+  mainTalentId?: string
+  secondaryTalentId?: string
+  talentSeed?: string
 }
 
 export interface SaveCloudCharacterInput {
@@ -35,11 +41,12 @@ export interface ClaimAfkRewardInput {
   expectedUpdatedAt: string
   lastActiveAt: string
   claimedAt: string
+  requestId: string
 }
 
 export interface ClaimAfkRewardResult {
   save: CloudCharacterSave
-  summary: LegacyAfkSummary
+  summary: LegacyAfkSummary | V2OfflineSummary
 }
 
 export interface EquipCloudItemInput {
@@ -49,10 +56,17 @@ export interface EquipCloudItemInput {
   unequipSlot?: string
 }
 
+export interface BreakthroughCloudCharacterInput {
+  characterId: string
+  expectedUpdatedAt: string
+  requestId: string
+}
+
 export interface ChallengePlayerInput {
   attackerCharacterId: string
   defenderCharacterId: string
   expectedUpdatedAt: string
+  requestId: string
 }
 
 export interface CloudBattleResult {
@@ -70,6 +84,7 @@ export type LeaderboardType =
   | 'kills'
   | 'weekly-xp'
   | 'weekly-gold'
+  | 'realm'
 
 export interface LeaderboardEntry {
   rank: number
@@ -81,6 +96,7 @@ export interface LeaderboardEntry {
   rating: number
   value: number
   avatarUrl: string | null
+  realmName?: string
 }
 
 export interface SaveAppearanceInput {
@@ -95,11 +111,13 @@ export interface SaveAppearanceInput {
 
 export interface GameCloudRepository {
   signInAnonymously(): Promise<UserSession>
+  bindAccount(displayName: string): Promise<UserSession>
   createCharacter(input: CreateCloudCharacterInput): Promise<CloudCharacterSave>
   loadCharacters(): Promise<CloudCharacterSave[]>
   saveCharacter(input: SaveCloudCharacterInput): Promise<CloudCharacterSave>
   claimAfkReward(input: ClaimAfkRewardInput): Promise<ClaimAfkRewardResult>
   equipItem(input: EquipCloudItemInput): Promise<CloudCharacterSave>
+  breakthroughCharacter(input: BreakthroughCloudCharacterInput): Promise<CloudCharacterSave>
   publishCharacter(characterId: string): Promise<void>
   challengePlayer(input: ChallengePlayerInput): Promise<CloudBattleResult>
   getLeaderboard(type: LeaderboardType, limit?: number): Promise<LeaderboardEntry[]>

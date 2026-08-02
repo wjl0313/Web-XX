@@ -10,3 +10,7 @@ export function getGameCloudRepository(): GameCloudRepository {
   if (!configured) throw new Error('尚未配置云端游戏仓储')
   return configured
 }
+
+export function getGameCloudRepositoryOrNull(): GameCloudRepository | null {
+  return configured
+}

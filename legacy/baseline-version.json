@@ -1,0 +1,29 @@
+{
+  "baseline": "p0-legacy-1.6.19",
+  "capturedAt": "2026-08-01T00:00:00+08:00",
+  "gitCommit": "07919d35ba192e28570c9bf4a19a52da5dd86ff9",
+  "appVersion": "0.1.0",
+  "legacyGameVersion": "1.6.19",
+  "legacySaveSchema": 2,
+  "nativeEnvelopeVersion": 2,
+  "nativeSaveSchema": 1,
+  "defaultRuntimeAfterP0": "equivalent",
+  "runtimeModes": [
+    "legacy",
+    "equivalent",
+    "v2"
+  ],
+  "sha256": {
+    "legacy/fanxiulu-monolith.html": "113F9ED589375E746C50A13EC6FE29B32BC6F255B208B7FACE43D7218A2685CC",
+    "src/game-core/data/characters.generated.ts": "EC7533E156D29AC0A909189F1347C3ECE98939AA755C0162B0F78D86E1FB66F8",
+    "src/game-core/data/world.generated.ts": "46B6C5603CF15AA5963FD45FAD665A94F3DD9F7B4C301CA6867B93E1198D76EB",
+    "src/game-core/data/items.generated.ts": "62394A4B55611CA480E4499BC9A30F3DA7122B4CF87070416AA96128B5D89621",
+    "src/game-core/data/spells.generated.ts": "1B2897C09822B40C8302CB1133AD5EBEB22DE18AC09974AEA76413C6FF2D1CA4",
+    "src/game-core/data/quests.generated.ts": "B34C599A1F42DCBBECBA756ADEDF681FFADB22C5D37549B1A6AECB172CA596FD",
+    "src/game-core/data/runes.generated.ts": "2F5C8DC88DECD0E6428E4EA70A765D1E25C2F69187D79B8EEA2D19BE330D7852",
+    "legacy/baseline-save-samples/01-low-warrior.json": "E806BA9B42DC04B410AA27AEC192427D88EC72A1C903177199EAEEC24664FF89",
+    "legacy/baseline-save-samples/02-mid-cleric.json": "209EBE9AFCDA163D94898C2F07CA3D0002DF6B6297D7B662F91B6B91AAAF74B9",
+    "legacy/baseline-save-samples/03-high-wizard.json": "6151E9791975354BE5665D8E52564519B287C5845AC0BF89104FC7B67D0812C9",
+    "legacy/baseline-save-samples/04-legacy-heavy-rogue.json": "723946184F01BFDC8328848D940E000C98DE093DD69B1C4A6F9627125B44620D"
+  }
+}

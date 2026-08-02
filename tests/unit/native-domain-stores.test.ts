@@ -30,7 +30,7 @@ describe('native domain stores', () => {
   it('creates, persists and reloads a compatible character slot', async () => {
     const saves = useSaveStore()
     await saves.initialize(repository)
-    await saves.createCharacter(0, { name: '青岚', race: '五行杂灵根', classId: '炼体士', now: 1 }, repository)
+    await saves.createCharacter(0, { name: '青岚', race: '五行杂灵根', classId: '炼体士', ruleset: 'legacy', now: 1 }, repository)
 
     expect(saves.activeSlot).toBe(0)
     expect(saves.activeCharacter).toMatchObject({ name: '青岚', level: 1, race: '五行杂灵根', cls: '炼体士', version: '1.6.19' })
@@ -47,7 +47,7 @@ describe('native domain stores', () => {
   it('equips and unequips inventory entries through the character boundary', async () => {
     const saves = useSaveStore()
     await saves.initialize(repository)
-    await saves.createCharacter(0, { name: '青岚', race: '五行杂灵根', classId: '炼体士' }, repository)
+    await saves.createCharacter(0, { name: '青岚', race: '五行杂灵根', classId: '炼体士', ruleset: 'legacy' }, repository)
     saves.activeCharacter!.inventory = ['Worn Shortsword']
     const characters = useCharacterStore()
     const baseAttack = Number(saves.activeCharacter!.atk)
@@ -59,10 +59,24 @@ describe('native domain stores', () => {
     expect((saves.activeCharacter!.equipment as Record<string, unknown>).weapon).toBeNull()
   })
 
+  it('accepts reactive character saves for inventory flags and zone travel', async () => {
+    const saves = useSaveStore()
+    await saves.initialize(repository)
+    await saves.createCharacter(0, { name: '照川', race: '五行杂灵根', classId: '炼体士', ruleset: 'legacy' }, repository)
+    saves.activeCharacter!.inventory = [{ base: 'Worn Shortsword', name: 'Worn Shortsword', quality: 'Normal', rolls: {} }]
+    saves.activeCharacter!.level = 100
+    const characters = useCharacterStore()
+
+    expect(characters.toggleInventoryFlag(0, 'locked')).toBe(true)
+    expect((saves.activeCharacter!.inventory![0] as Record<string, unknown>).locked).toBe(true)
+    expect(characters.setZone(15)).toBe(true)
+    expect(saves.activeCharacter!.zone).toBe(15)
+  })
+
   it('runs native deterministic combat without the legacy iframe', async () => {
     const saves = useSaveStore()
     await saves.initialize(repository)
-    await saves.createCharacter(0, { name: '青岚', race: '五行杂灵根', classId: '炼体士' }, repository)
+    await saves.createCharacter(0, { name: '青岚', race: '五行杂灵根', classId: '炼体士', ruleset: 'legacy' }, repository)
     const combat = useCombatStore()
     combat.setRandomSource(createSeededRandom('native-combat'))
 
@@ -76,7 +90,7 @@ describe('native domain stores', () => {
   it('runs the frozen slot-order auto-cast rule and restores its structured journal', async () => {
     const saves = useSaveStore()
     await saves.initialize(repository)
-    await saves.createCharacter(0, { name: '云岫', race: '五行杂灵根', classId: '五行法修' }, repository)
+    await saves.createCharacter(0, { name: '云岫', race: '五行杂灵根', classId: '五行法修', ruleset: 'legacy' }, repository)
     const combat = useCombatStore()
     combat.setRandomSource(createSeededRandom('native-auto-cast'))
     expect(combat.spawn()).not.toBeNull()
@@ -100,7 +114,7 @@ describe('native domain stores', () => {
   it('spawns and settles a zone boss through the native combat boundary', async () => {
     const saves = useSaveStore()
     await saves.initialize(repository)
-    await saves.createCharacter(0, { name: '临渊', race: '五行杂灵根', classId: '炼体士' }, repository)
+    await saves.createCharacter(0, { name: '临渊', race: '五行杂灵根', classId: '炼体士', ruleset: 'legacy' }, repository)
     const combat = useCombatStore()
     combat.setRandomSource({
       next: () => 0.99,
@@ -123,8 +137,8 @@ describe('native domain stores', () => {
   it('restores offline party XP into every compatible local character slot', async () => {
     const saves = useSaveStore()
     await saves.initialize(repository)
-    await saves.createCharacter(0, { name: '队长', race: '五行杂灵根', classId: '炼体士' }, repository)
-    await saves.createCharacter(1, { name: '队友', race: '五行杂灵根', classId: '炼体士' }, repository)
+    await saves.createCharacter(0, { name: '队长', race: '五行杂灵根', classId: '炼体士', ruleset: 'legacy' }, repository)
+    await saves.createCharacter(1, { name: '队友', race: '五行杂灵根', classId: '炼体士', ruleset: 'legacy' }, repository)
     expect(saves.selectSlot(0)).toBe(true)
     saves.activeCharacter!.group = [1]
     saves.activeCharacter!.afkEnabled = true

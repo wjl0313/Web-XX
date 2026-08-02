@@ -44,8 +44,9 @@ async function createCharacter(
   return success(await service.invoke('create-character', {
     slot,
     name,
-    race: 'Human',
-    classId: 'Warrior',
+    race: '五行伪灵根',
+    classId: '炼体士',
+    rootId: '五行伪灵根',
   }, identity))
 }
 
@@ -56,12 +57,13 @@ describe('CloudBase server function service', () => {
     const created = await createCharacter(service)
 
     expect(created).toMatchObject({ slot: 0, schemaVersion: 2, gameVersion: '1.6.19' })
-    expect(created.data).toMatchObject({ name: '青岚', cls: 'Warrior', level: 1 })
+    expect(created.data).toMatchObject({ name: '青岚', cls: '炼体士', level: 1, ruleset: 'v2' })
     const duplicate = await service.invoke('create-character', {
       slot: 0,
       name: '丹霞',
-      race: 'Human',
-      classId: 'Warrior',
+      race: '五行伪灵根',
+      classId: '炼体士',
+      rootId: '五行伪灵根',
     }, USER)
     expect(duplicate).toMatchObject({ ok: false, error: { code: 'slot-occupied' } })
     expect(success<CloudCharacterSave[]>(await service.invoke('load-characters', {}, USER))).toHaveLength(1)
@@ -97,7 +99,14 @@ describe('CloudBase server function service', () => {
     const armed = success<CloudCharacterSave>(await service.invoke('save-character', {
       characterId: created.id,
       expectedUpdatedAt: created.updatedAt,
-      data: { ...created.data, afkEnabled: true, lastAfkAt: Date.parse(lastActiveAt) },
+      data: {
+        ...created.data,
+        atk: 1_000,
+        maxHp: 5_000,
+        hp: 5_000,
+        v2AfkEnabled: true,
+        v2LastAfkAt: Date.parse(lastActiveAt),
+      },
     }, USER))
     setNow('2026-08-01T00:10:00.000Z')
     const claimed = success<ClaimAfkRewardResult>(await service.invoke('claim-afk-reward', {
@@ -105,17 +114,27 @@ describe('CloudBase server function service', () => {
       expectedUpdatedAt: armed.updatedAt,
       lastActiveAt,
       claimedAt: '2026-08-01T00:10:00.000Z',
+      requestId: 'afk-request-1',
     }, USER))
 
-    expect(claimed.summary).toMatchObject({ applied: true, capped: false })
-    expect(claimed.summary.xp).toBeGreaterThan(0)
-    const replay = await service.invoke('claim-afk-reward', {
+    expect(claimed.summary).toMatchObject({ mode: 'exact', elapsedMs: expect.any(Number) })
+    expect('cultivation' in claimed.summary && claimed.summary.cultivation).toBeGreaterThan(0)
+    const replay = success<ClaimAfkRewardResult>(await service.invoke('claim-afk-reward', {
       characterId: created.id,
       expectedUpdatedAt: armed.updatedAt,
       lastActiveAt,
       claimedAt: '2026-08-01T00:10:00.000Z',
+      requestId: 'afk-request-1',
+    }, USER))
+    expect(replay.summary).toEqual(claimed.summary)
+    const staleNewRequest = await service.invoke('claim-afk-reward', {
+      characterId: created.id,
+      expectedUpdatedAt: armed.updatedAt,
+      lastActiveAt,
+      claimedAt: '2026-08-01T00:10:00.000Z',
+      requestId: 'afk-request-2',
     }, USER)
-    expect(replay).toMatchObject({ ok: false, error: { code: 'save-conflict' } })
+    expect(staleNewRequest).toMatchObject({ ok: false, error: { code: 'save-conflict' } })
   })
 
   it('executes equipment changes on the server instead of trusting client stat deltas', async () => {
@@ -172,6 +191,7 @@ describe('CloudBase server function service', () => {
       attackerCharacterId: attacker.id,
       defenderCharacterId: defender.id,
       expectedUpdatedAt: freshAttacker.updatedAt,
+      requestId: 'pvp-request-1',
     }, USER))
 
     expect(battle.recordId).toBe('battle-3')
@@ -180,6 +200,13 @@ describe('CloudBase server function service', () => {
     expect(store.battles.get(battle.recordId)).toMatchObject({ winnerCharacterId: battle.winnerCharacterId })
     expect(store.characters.get(attacker.id)?.rating).not.toBe(1_000)
     expect(store.publications.get(defender.id)?.rating).not.toBe(1_000)
+    const replay = success<CloudBattleResult>(await service.invoke('challenge-player', {
+      attackerCharacterId: attacker.id,
+      defenderCharacterId: defender.id,
+      expectedUpdatedAt: freshAttacker.updatedAt,
+      requestId: 'pvp-request-1',
+    }, USER))
+    expect(replay).toEqual(battle)
   })
 
   it('returns structured authentication and input failures', async () => {

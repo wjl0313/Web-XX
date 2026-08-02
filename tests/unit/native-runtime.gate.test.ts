@@ -98,25 +98,62 @@ describe('native runtime shadow gate', () => {
 })
 
 describe('feature flag integration', () => {
-  it('keeps the legacy runtime by default and enables native only after the gate passes', () => {
+  it('uses the equivalent runtime by default and keeps the gate as migration diagnostics', () => {
     const fixture = createFixture()
     const storage = {
       getItem: (key: string) => key === LEGACY_STORAGE_KEYS.slots ? fixture.legacyRaw : null,
     }
 
     expect(resolveFeatureFlags({ search: '', storage, now: () => fixedDate })).toMatchObject({
-      legacyGameBridge: true,
-      nativeRuntimeRequested: false,
-      nativeRuntimeGate: { status: 'not-requested' },
-    })
-    expect(resolveFeatureFlags({ search: '?native=1', storage, now: () => fixedDate })).toMatchObject({
+      requestedMode: 'equivalent',
+      runtimeMode: 'equivalent',
       legacyGameBridge: false,
+      equivalentRuntime: true,
+      v2Placeholder: false,
+      nativeRuntimeRequested: true,
+      nativeRuntimeGate: { status: 'ready' },
+    })
+    expect(resolveFeatureFlags({ search: '?mode=equivalent', storage, now: () => fixedDate })).toMatchObject({
+      requestedMode: 'equivalent',
+      runtimeMode: 'equivalent',
+      legacyGameBridge: false,
+      equivalentRuntime: true,
+      v2Placeholder: false,
       nativeRuntimeRequested: true,
       nativeRuntimeGate: { status: 'ready' },
     })
   })
 
-  it('falls back to the legacy runtime when the local save is corrupt', () => {
+  it('supports the legacy native alias and keeps an explicit mode authoritative', () => {
+    const fixture = createFixture()
+    const storage = { getItem: () => fixture.legacyRaw }
+
+    expect(resolveFeatureFlags({ search: '?native=1', storage, now: () => fixedDate })).toMatchObject({
+      requestedMode: 'equivalent',
+      runtimeMode: 'equivalent',
+    })
+    expect(resolveFeatureFlags({ search: '?mode=legacy&native=1', storage, now: () => fixedDate })).toMatchObject({
+      requestedMode: 'legacy',
+      runtimeMode: 'legacy',
+      legacyGameBridge: true,
+    })
+  })
+
+  it('opens v2 in the playable native shell', () => {
+    const flags = resolveFeatureFlags({ search: '?mode=v2', storage: null, now: () => fixedDate })
+
+    expect(flags).toMatchObject({
+      requestedMode: 'v2',
+      runtimeMode: 'v2',
+      legacyGameBridge: false,
+      equivalentRuntime: true,
+      v2Placeholder: false,
+      nativeRuntimeRequested: false,
+      nativeRuntimeGate: { status: 'not-requested' },
+    })
+  })
+
+  it('keeps the native shell active when the local save is corrupt so the repository can isolate it', () => {
     const flags = resolveFeatureFlags({
       search: '?native=1',
       storage: { getItem: () => '{' },
@@ -124,7 +161,10 @@ describe('feature flag integration', () => {
     })
 
     expect(flags).toMatchObject({
-      legacyGameBridge: true,
+      requestedMode: 'equivalent',
+      runtimeMode: 'equivalent',
+      legacyGameBridge: false,
+      equivalentRuntime: true,
       nativeRuntimeRequested: true,
       nativeRuntimeGate: { status: 'invalid-legacy-save' },
     })

@@ -57,6 +57,7 @@ describe('Chinese character identity domain', () => {
       name: '青岚',
       race: '五行杂灵根',
       classId: '五行法修',
+      ruleset: 'legacy',
       now: 1,
     })
     expect(native).toMatchObject({
@@ -82,4 +83,3 @@ describe('Chinese character identity domain', () => {
     expect(getLegacyHpPerLevel('炼体士', 20)).toBe(getLegacyHpPerLevel('Warrior', 20))
   })
 })
-

@@ -20,6 +20,7 @@ function valueFor(document: GameCloudPublicationDocument, type: LeaderboardType)
   if (type === 'kills') return document.kills
   if (type === 'weekly-xp') return document.weeklyXp
   if (type === 'weekly-gold') return document.weeklyGold
+  if (type === 'realm') return document.realmRank
   return document.power
 }
 
@@ -108,6 +109,9 @@ export class InMemoryGameCloudStore implements GameCloudServerStore {
   }
 
   async commitChallenge(commit: GameCloudChallengeCommit): Promise<void> {
+    const replay = [...this.battles.values()].find((battle) =>
+      battle.ownerId === commit.ownerId && battle.requestId === commit.battle.requestId)
+    if (replay) return
     const attacker = this.characters.get(commit.attackerCharacterId)
     if (!attacker || attacker.ownerId !== commit.ownerId) {
       throw new GameCloudServiceError('character-not-found', '进攻角色不存在')
@@ -137,6 +141,11 @@ export class InMemoryGameCloudStore implements GameCloudServerStore {
       this.characters.set(defender.id, clone(defender))
     }
     this.battles.set(commit.battle.recordId, clone(commit.battle))
+  }
+
+  async findChallengeByRequest(ownerId: string, requestId: string): Promise<GameCloudChallengeCommit['battle'] | null> {
+    const battle = [...this.battles.values()].find((entry) => entry.ownerId === ownerId && entry.requestId === requestId)
+    return battle ? clone(battle) : null
   }
 
   async queryLeaderboard(type: LeaderboardType, limit: number): Promise<GameCloudPublicationDocument[]> {

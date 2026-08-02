@@ -2,6 +2,8 @@ import { defineConfig, devices } from '@playwright/test'
 
 const port = 4175
 const baseURL = `http://127.0.0.1:${port}`
+const executablePath = process.env.PLAYWRIGHT_EXECUTABLE_PATH
+const nodeExecutable = JSON.stringify(process.execPath)
 
 export default defineConfig({
   testDir: './tests/e2e',
@@ -13,9 +15,10 @@ export default defineConfig({
     baseURL,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
+    launchOptions: executablePath ? { executablePath } : undefined,
   },
   webServer: {
-    command: `npm run dev -- --host 127.0.0.1 --port ${port}`,
+    command: `${nodeExecutable} ./node_modules/vite/bin/vite.js --host 127.0.0.1 --port ${port}`,
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

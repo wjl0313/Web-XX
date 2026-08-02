@@ -1,0 +1,693 @@
+[
+  {
+    "version": "1.6.19",
+    "name": "照玄",
+    "race": "Human",
+    "cls": "Wizard",
+    "level": 92,
+    "xp": 88200,
+    "xpNext": 110400,
+    "hp": 6840,
+    "maxHp": 7100,
+    "mp": 14880,
+    "maxMp": 15600,
+    "atk": 1260,
+    "def": 820,
+    "mpRegen": 62,
+    "gold": 486000,
+    "faction": 1840,
+    "healpotions": 3,
+    "manapotions": 3,
+    "healpotions_lhp": 0,
+    "manapotions_lmp": 0,
+    "healpotions_ghp": 0,
+    "manapotions_gmp": 0,
+    "healpotions_shp": 0,
+    "manapotions_smp": 0,
+    "healpotions_heroic": 0,
+    "manapotions_heroic": 0,
+    "healpotions_epic": 0,
+    "manapotions_epic": 0,
+    "healpotions_legendary": 0,
+    "manapotions_legendary": 0,
+    "zone": 15,
+    "bindZone": 14,
+    "corpse": null,
+    "inventory": [
+      {
+        "base": "Godshard Edge",
+        "name": "Godshard Edge",
+        "quality": "Legendary",
+        "ilvl": 91,
+        "levelReq": 88,
+        "rolls": {
+          "atk": 82,
+          "int": 9,
+          "wis": 6
+        },
+        "locked": true,
+        "favorite": true
+      },
+      {
+        "base": "Godshard Plate",
+        "name": "Godshard Plate",
+        "quality": "Mythic",
+        "ilvl": 92,
+        "levelReq": 89,
+        "rolls": {
+          "def": 74,
+          "hp": 620,
+          "mp": 420,
+          "int": 8
+        }
+      },
+      {
+        "base": "Arcane Lodestone",
+        "name": "Arcane Lodestone",
+        "quality": "Legendary",
+        "ilvl": 90,
+        "levelReq": 87,
+        "rolls": {
+          "atk": 36,
+          "mp": 540,
+          "int": 10,
+          "wis": 7
+        }
+      },
+      "Legendary Healing Potion",
+      "Legendary Mana Potion",
+      "Mystic Chest"
+    ],
+    "runeStash": [
+      "Rune: El",
+      "Rune: Tir",
+      "Rune: Tal",
+      "Rune: Ort",
+      "Rune: Sol",
+      "Rune: Dol",
+      "Rune: Kor",
+      "Rune: Bron",
+      "Rune: Lyr",
+      "Rune: Vald",
+      "Rune: Zhar",
+      "Rune: Morr"
+    ],
+    "discoveredRunewords": [
+      "Runeword: Steel",
+      "Runeword: Mana Weave",
+      "Runeword: Stormcaller",
+      "Runeword: Frostheart"
+    ],
+    "bags": [
+      "Worn Pouch",
+      "Worn Pouch",
+      "Worn Pouch",
+      "Worn Pouch"
+    ],
+    "equipment": {
+      "weapon": {
+        "base": "Stormcaller Staff",
+        "name": "Stormcaller Staff",
+        "quality": "Mythic",
+        "ilvl": 92,
+        "levelReq": 89,
+        "rolls": {
+          "atk": 108,
+          "mp": 780,
+          "int": 12,
+          "wis": 8
+        },
+        "maxSockets": 2,
+        "sockets": [
+          "Rune: Sol",
+          "Rune: Lyr"
+        ]
+      },
+      "chest": {
+        "base": "Godshard Plate",
+        "name": "Godshard Plate",
+        "quality": "Legendary",
+        "ilvl": 91,
+        "levelReq": 88,
+        "rolls": {
+          "def": 88,
+          "hp": 760,
+          "mp": 340,
+          "con": 7
+        },
+        "maxSockets": 2,
+        "sockets": [
+          "Rune: Vald",
+          "Rune: Morr"
+        ]
+      },
+      "legs": {
+        "base": "Godshard Legplates",
+        "name": "Godshard Legplates",
+        "quality": "Legendary",
+        "ilvl": 91,
+        "levelReq": 88,
+        "rolls": {
+          "def": 62,
+          "hp": 520,
+          "int": 6
+        }
+      },
+      "feet": {
+        "base": "Godshard Striders",
+        "name": "Godshard Striders",
+        "quality": "Legendary",
+        "ilvl": 90,
+        "levelReq": 87,
+        "rolls": {
+          "def": 48,
+          "hp": 410,
+          "dex": 7
+        }
+      },
+      "offhand": {
+        "base": "Aether Codex",
+        "name": "Aether Codex",
+        "quality": "Mythic",
+        "ilvl": 92,
+        "levelReq": 89,
+        "rolls": {
+          "atk": 70,
+          "mp": 920,
+          "int": 13,
+          "wis": 9
+        },
+        "maxSockets": 2,
+        "sockets": [
+          "Rune: Tir",
+          "Rune: Zhar"
+        ]
+      },
+      "charm": {
+        "base": "Arcane Lodestone",
+        "name": "Arcane Lodestone",
+        "quality": "Legendary",
+        "ilvl": 91,
+        "levelReq": 88,
+        "rolls": {
+          "atk": 42,
+          "mp": 610,
+          "int": 11,
+          "cha": 6
+        }
+      }
+    },
+    "knownSpells": [
+      "fireball",
+      "ice_comet",
+      "clarity",
+      "wiz_chain_lightning",
+      "wiz_starfire",
+      "wiz_arcane_well",
+      "epic_wizard_supernova"
+    ],
+    "memorizedSpells": [
+      "fireball",
+      "ice_comet",
+      "clarity",
+      "wiz_chain_lightning",
+      "wiz_starfire",
+      "wiz_arcane_well"
+    ],
+    "spellShopInitialized": true,
+    "spellCooldowns": {},
+    "autoUseSkills": true,
+    "autoSkillSlots": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "quests": [
+      {
+        "name": "Rat Problem",
+        "desc": "Kill 5 Field Rats in Newbie Yard",
+        "mob": "Field Rat",
+        "count": 5,
+        "xp": 150,
+        "gold": 20,
+        "done": false,
+        "prog": 0
+      },
+      {
+        "name": "Gnoll Slayer",
+        "desc": "Kill 8 Gnoll Warriors in Howlfang Burrow",
+        "mob": "Gnoll Warrior",
+        "count": 8,
+        "xp": 400,
+        "gold": 60,
+        "done": false,
+        "prog": 0
+      },
+      {
+        "name": "Thicket Pest Control",
+        "desc": "Kill 6 Forest Wolves in Mistveil Hollow",
+        "mob": "Forest Wolf",
+        "count": 6,
+        "xp": 700,
+        "gold": 95,
+        "done": false,
+        "prog": 0
+      },
+      {
+        "name": "Manor Cleansing",
+        "desc": "Kill 6 Restless Zombies in Hollowmere Manor",
+        "mob": "Restless Zombie",
+        "count": 6,
+        "xp": 900,
+        "gold": 120,
+        "done": false,
+        "prog": 0
+      },
+      {
+        "name": "Break the Ironskull Line",
+        "desc": "Kill 8 Orc Centurions in Ironskull Keep",
+        "mob": "Orc Centurion",
+        "count": 8,
+        "xp": 1500,
+        "gold": 190,
+        "done": false,
+        "prog": 0
+      },
+      {
+        "name": "Clear the Pass",
+        "desc": "Kill 8 Cragpass Bandits in Cragpass Hold",
+        "mob": "Cragpass Bandit",
+        "count": 8,
+        "xp": 2400,
+        "gold": 290,
+        "done": false,
+        "prog": 0
+      },
+      {
+        "name": "Fear Made Flesh",
+        "desc": "Kill 7 Fear Elementals in Temple of Dread",
+        "mob": "Fear Elemental",
+        "count": 7,
+        "xp": 3300,
+        "gold": 380,
+        "done": false,
+        "prog": 0
+      },
+      {
+        "name": "Shoreline Watch",
+        "desc": "Kill 10 Dragonkin Scouts at the Lake of Shadows",
+        "mob": "Dragonkin Scout",
+        "count": 10,
+        "xp": 4800,
+        "gold": 560,
+        "done": false,
+        "prog": 0
+      },
+      {
+        "name": "Crypt Quieted",
+        "desc": "Kill 8 Crypt Knights in Forsaken Crypt",
+        "mob": "Crypt Knight",
+        "count": 8,
+        "xp": 7600,
+        "gold": 860,
+        "done": false,
+        "prog": 0
+      },
+      {
+        "name": "Mordana's Brood",
+        "desc": "Kill 8 Lava Drake Spawn in Mordana's Lair",
+        "mob": "Lava Drake Spawn",
+        "count": 8,
+        "xp": 12000,
+        "gold": 1300,
+        "done": false,
+        "prog": 0
+      },
+      {
+        "name": "Seal the Vault",
+        "desc": "Kill 9 Vault Reavers in Sundered Vault",
+        "mob": "Vault Reaver",
+        "count": 9,
+        "xp": 26000,
+        "gold": 2400,
+        "done": false,
+        "prog": 0
+      },
+      {
+        "name": "Topple the Spire",
+        "desc": "Kill 9 Obsidian Knights in Obsidian Spire",
+        "mob": "Obsidian Knight",
+        "count": 9,
+        "xp": 42000,
+        "gold": 3600,
+        "done": false,
+        "prog": 0
+      },
+      {
+        "name": "Silence the Throne",
+        "desc": "Kill 9 Throne Heralds in Hollow Throne",
+        "mob": "Throne Herald",
+        "count": 9,
+        "xp": 68000,
+        "gold": 5400,
+        "done": false,
+        "prog": 0
+      },
+      {
+        "name": "Hunt the Shadow",
+        "desc": "Kill 10 Umbral Stalkers in Umbral Reach",
+        "mob": "Umbral Stalker",
+        "count": 10,
+        "xp": 110000,
+        "gold": 8100,
+        "done": false,
+        "prog": 0
+      },
+      {
+        "name": "Mend the Wrack",
+        "desc": "Kill 10 Voidwrack Drifters in Voidwrack Expanse",
+        "mob": "Voidwrack Drifter",
+        "count": 10,
+        "xp": 175000,
+        "gold": 12000,
+        "done": false,
+        "prog": 0
+      },
+      {
+        "name": "Quench the Cinderlands",
+        "desc": "Kill 10 Cinder Tyrants in Pyreheart Cinderlands",
+        "mob": "Cinder Tyrant",
+        "count": 10,
+        "xp": 280000,
+        "gold": 18000,
+        "done": false,
+        "prog": 0
+      },
+      {
+        "name": "Thaw the Eternity",
+        "desc": "Kill 11 Glacial Behemoths in Frozen Eternity",
+        "mob": "Glacial Behemoth",
+        "count": 11,
+        "xp": 440000,
+        "gold": 27000,
+        "done": false,
+        "prog": 0
+      },
+      {
+        "name": "Shatter the Court",
+        "desc": "Kill 11 Broken Avatars in Court of Shattered Gods",
+        "mob": "Broken Avatar",
+        "count": 11,
+        "xp": 700000,
+        "gold": 40000,
+        "done": false,
+        "prog": 0
+      },
+      {
+        "name": "Climb the Worldspine",
+        "desc": "Kill 11 Titan-Bone Reavers in Worldspine Crags",
+        "mob": "Titan-Bone Reaver",
+        "count": 11,
+        "xp": 1100000,
+        "gold": 60000,
+        "done": false,
+        "prog": 0
+      },
+      {
+        "name": "Drown the Necrotide",
+        "desc": "Kill 12 Drowned Liches in Necrotide Abyss",
+        "mob": "Drowned Lich",
+        "count": 12,
+        "xp": 1700000,
+        "gold": 90000,
+        "done": false,
+        "prog": 0
+      },
+      {
+        "name": "Burn the Aetherwastes",
+        "desc": "Kill 12 Aetherburn Marauders in Aetherburn Wastes",
+        "mob": "Aetherburn Marauder",
+        "count": 12,
+        "xp": 2600000,
+        "gold": 130000,
+        "done": false,
+        "prog": 0
+      },
+      {
+        "name": "Close the Maw",
+        "desc": "Kill 12 Maw-Tongue Horrors in Maw of the Worldend",
+        "mob": "Maw-Tongue Horror",
+        "count": 12,
+        "xp": 4000000,
+        "gold": 190000,
+        "done": false,
+        "prog": 0
+      },
+      {
+        "name": "Bind the Skyswound",
+        "desc": "Kill 13 Constellation Reavers in Star-Bleeding Spire",
+        "mob": "Constellation Reaver",
+        "count": 13,
+        "xp": 6000000,
+        "gold": 270000,
+        "done": false,
+        "prog": 0
+      },
+      {
+        "name": "Survive the Crucible",
+        "desc": "Kill 13 Apotheosis Tyrants in Crucible of Apotheosis",
+        "mob": "Apotheosis Tyrant",
+        "count": 13,
+        "xp": 9000000,
+        "gold": 400000,
+        "done": false,
+        "prog": 0
+      },
+      {
+        "name": "Unseat the Sovereign",
+        "desc": "Kill 13 Timeless Sovereigns at the Throne Beyond Time",
+        "mob": "Timeless Sovereign",
+        "count": 13,
+        "xp": 14000000,
+        "gold": 580000,
+        "done": false,
+        "prog": 0
+      },
+      {
+        "name": "Tear the Final Veil",
+        "desc": "Kill 14 Veil-Renders in The Final Veil",
+        "mob": "Veil-Render",
+        "count": 14,
+        "xp": 22000000,
+        "gold": 850000,
+        "done": false,
+        "prog": 0
+      }
+    ],
+    "statusEffects": [],
+    "abilities": {
+      "str": 8,
+      "dex": 11,
+      "con": 10,
+      "int": 15,
+      "wis": 13,
+      "cha": 10
+    },
+    "pets": {
+      "active": "none",
+      "owned": [],
+      "lastActionAt": 0
+    },
+    "group": [],
+    "lfg": false,
+    "lfgParty": [],
+    "partyLineup": [],
+    "partyHp": {
+      "units": {}
+    },
+    "groupSplitGold": false,
+    "groupMercs": [],
+    "groupMercNames": [],
+    "groupMercGear": [],
+    "mercenary": {
+      "type": "none",
+      "customName": "",
+      "totalPaid": 0,
+      "hires": 0,
+      "lastHiredAt": 0,
+      "totalUpkeepPaid": 0,
+      "nextUpkeepAt": 0,
+      "lastUpkeepPaidAt": 0,
+      "actionReadyAt": 0,
+      "gear": {
+        "weapon": null,
+        "chest": null,
+        "legs": null,
+        "feet": null,
+        "offhand": null,
+        "charm": null
+      }
+    },
+    "prestige": {
+      "rank": 3,
+      "points": 7,
+      "spent": 5,
+      "perks": {
+        "xp": 2,
+        "gold": 1,
+        "loot": 1,
+        "power": 1,
+        "ward": 0
+      },
+      "lastStarterGrantRank": 3
+    },
+    "aa": {
+      "points": 21,
+      "spent": 14,
+      "nodes": {
+        "veteran_lore": 4,
+        "arcane_mastery": 5,
+        "soulkeeper": 5
+      },
+      "xpProgress": 72000,
+      "xpAllocPct": 25,
+      "extraSpellSlots": 4
+    },
+    "crafting": {
+      "shards": {
+        "common": 0,
+        "magic": 0,
+        "rare": 0,
+        "epic": 0
+      }
+    },
+    "huntTargets": {
+      "15": "Ash Drake"
+    },
+    "huntStreak": {
+      "zone": null,
+      "target": "",
+      "count": 0
+    },
+    "afkProfiles": {
+      "slot1": null,
+      "slot2": null,
+      "slot3": null
+    },
+    "loadouts": {
+      "slot1": null,
+      "slot2": null,
+      "slot3": null
+    },
+    "activeLoadout": "",
+    "afkRules": {
+      "autoBuyPots": true,
+      "potMin": 5,
+      "autoAdvanceContract": true
+    },
+    "afkGoal": "balanced",
+    "afkEnabled": false,
+    "lastAfkAt": null,
+    "classQuest": {
+      "name": "Epic Trial: Starfire Codex",
+      "target": "Magma Sentinel",
+      "count": 28,
+      "progress": 28,
+      "completed": true,
+      "claimed": true
+    },
+    "dungeon": {
+      "active": false,
+      "floor": 38,
+      "best": 38,
+      "checkpoint": 35,
+      "marks": 720,
+      "essence": 1480,
+      "bossesCleared": 12,
+      "relicRanks": {
+        "ember": 4,
+        "moon": 3
+      },
+      "theme": "moon",
+      "autoDescend": false,
+      "autoLeaveOnDeath": true,
+      "modifier": "hard"
+    },
+    "lootFilter": {
+      "autoSellJunk": false,
+      "autoSellNormalGear": false,
+      "autoSellBlueMagicGear": false,
+      "autoSellRareGear": false,
+      "autoSellEpicGear": false,
+      "autoSellLegendaryGear": false,
+      "autoSellMythicGear": false,
+      "autoSellRunewordGear": false,
+      "protectRarePlus": true,
+      "autoEquipEmptySlots": false,
+      "autoEquipUpgradedEquipment": false,
+      "autoVendorOverflow": false,
+      "autoSellDisplacedGear": false,
+      "autoEquipBeforeAutoSell": false
+    },
+    "lootFilterPreset": "balanced",
+    "hardcore": false,
+    "stats": {
+      "kills": 38500,
+      "namedKills": 680,
+      "eliteKills": 1260,
+      "bossKills": 88,
+      "deaths": 7,
+      "goldEarned": 2930000,
+      "xpEarned": 4820000,
+      "dailiesClaimed": 0,
+      "loginDays": 0,
+      "weeklyTiersClaimed": 0
+    },
+    "achievements": {},
+    "activeTitle": "",
+    "unlockedTitles": [],
+    "dailyQuests": [],
+    "dailyReset": 0,
+    "bossCooldowns": {
+      "15": 1785513780000
+    },
+    "logFilters": {
+      "dmg": true,
+      "loot": true,
+      "info": true
+    },
+    "lastSaved": 1785513600000,
+    "appearance": {
+      "sex": "male",
+      "hairstyle": "披发",
+      "tone": "冷白",
+      "robe": "玄紫"
+    }
+  },
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null
+]

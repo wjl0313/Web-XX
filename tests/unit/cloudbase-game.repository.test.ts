@@ -54,7 +54,22 @@ describe('CloudBase function client', () => {
 })
 
 describe('CloudBase game repository', () => {
-  it('maps domain operations to the P0 cloud-function contract', async () => {
+  it('establishes an anonymous CloudBase identity before bootstrapping the user', async () => {
+    const order: string[] = []
+    const client: CloudFunctionClient = {
+      async invoke<T>(name: string): Promise<T> {
+        order.push(name)
+        return { userId: 'anonymous-1', anonymous: true, displayName: null } as T
+      },
+    }
+    const repository = new CloudBaseGameRepository(client, {
+      async signInAnonymously() { order.push('auth') },
+    })
+    await expect(repository.signInAnonymously()).resolves.toMatchObject({ userId: 'anonymous-1', anonymous: true })
+    expect(order).toEqual(['auth', 'bootstrap-user'])
+  })
+
+  it('maps domain operations to the P2 cloud-function contract', async () => {
     const calls: Array<{ name: string; data?: Record<string, unknown> }> = []
     const client: CloudFunctionClient = {
       async invoke<T>(name: string, data?: Record<string, unknown>): Promise<T> {
@@ -64,8 +79,10 @@ describe('CloudBase game repository', () => {
     }
     const repository = new CloudBaseGameRepository(client)
 
+    await repository.bindAccount('青岚')
     await repository.createCharacter({ slot: 2, name: '青岚', race: 'Human', classId: 'Warrior' })
     await repository.loadCharacters()
+    await repository.breakthroughCharacter({ characterId: 'char-1', expectedUpdatedAt: '2026-08-01T00:00:00.000Z', requestId: 'breakthrough-1' })
     await repository.publishCharacter('char-1')
     await repository.getLeaderboard('power', 500)
     await repository.saveAppearance({
@@ -78,13 +95,15 @@ describe('CloudBase game repository', () => {
     })
 
     expect(calls.map((call) => call.name)).toEqual([
+      'bind-account',
       'create-character',
       'load-characters',
+      'breakthrough-character',
       'publish-character',
       'get-leaderboard',
       'save-appearance',
     ])
-    expect(calls[0].data).toMatchObject({ slot: 2, name: '青岚' })
-    expect(calls[3].data).toEqual({ type: 'power', limit: 100 })
+    expect(calls[1].data).toMatchObject({ slot: 2, name: '青岚' })
+    expect(calls[5].data).toEqual({ type: 'power', limit: 100 })
   })
 })
