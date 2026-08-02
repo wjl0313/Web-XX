@@ -2,6 +2,8 @@
 import { computed, ref, watch } from 'vue'
 import {
   ALL_ITEM_DATA,
+  CONTAINER_ITEMS,
+  RUNE_DATA,
   getLegacyItemBaseName,
   getLegacyItemDisplayName,
   getLegacyItemEffectiveStats,
@@ -88,6 +90,58 @@ function itemCategory(data: unknown): string {
   return slot && slotLabels[slot] ? slotLabels[slot] : translateLegacyText(String(record.type || '杂物'))
 }
 
+function itemTileIcon(item: unknown): string {
+  const baseName = getLegacyItemBaseName(item)
+  if (baseName && baseName in RUNE_DATA) return '🔣'
+  if (baseName && baseName in CONTAINER_ITEMS) return '🎒'
+  const data = ALL_ITEM_DATA[baseName as keyof typeof ALL_ITEM_DATA] as Record<string, unknown> | undefined
+  const slot = String(data?.slot || '')
+  const type = String(data?.type || '').toLowerCase()
+  if (slot === 'weapon') {
+    if (type.includes('staff')) return '🪄'
+    if (type.includes('bow')) return '🏹'
+    if (type.includes('mace') || type.includes('maul')) return '🔨'
+    if (type.includes('axe') || type.includes('cleaver')) return '🪓'
+    if (type.includes('polearm') || type.includes('spear') || type.includes('glaive') || type.includes('halberd') || type.includes('trident') || type.includes('scythe')) return '🔱'
+    if (type.includes('dagger') || type.includes('piercing')) return '🗡️'
+    return '⚔️'
+  }
+  if (slot === 'chest') return '🥋'
+  if (slot === 'legs') return '👖'
+  if (slot === 'feet') return '🥾'
+  if (slot === 'offhand') {
+    if (type.includes('shield') || type.includes('aegis')) return '🛡️'
+    if (type.includes('orb') || type.includes('focus')) return '🔮'
+    if (type.includes('totem')) return '⛩️'
+    return '✨'
+  }
+  if (slot === 'charm') return '💎'
+  return '📦'
+}
+
+function compareArrow(item: unknown): string {
+  const data = ALL_ITEM_DATA[getLegacyItemBaseName(item) as keyof typeof ALL_ITEM_DATA] as Record<string, unknown> | undefined
+  const slot = String(data?.slot || '')
+  if (!slot) return ''
+  const equipped = characters.equipment[slot as LegacyEquipmentSlot]
+  if (!equipped) return ''
+  const itemStats = effectiveStats(item)
+  const currentStats = effectiveStats(equipped)
+  if (!itemStats || !currentStats) return ''
+  let maximumDifference = 0
+  for (const stat of ['atk', 'def', 'hp', 'mp'] as const) {
+    const difference = Number(itemStats[stat] || 0) - Number(currentStats[stat] || 0)
+    if (Math.abs(difference) > Math.abs(maximumDifference)) maximumDifference = difference
+  }
+  if (maximumDifference > 0) return '▲'
+  if (maximumDifference < 0) return '▼'
+  return '→'
+}
+
+function deltaArrow(value: number): string {
+  return value > 0 ? '▲' : value < 0 ? '▼' : '→'
+}
+
 const entries = computed(() => characters.inventory.map((item, index) => {
   const base = getLegacyItemBaseName(item)
   const data = ALL_ITEM_DATA[base as keyof typeof ALL_ITEM_DATA]
@@ -100,6 +154,8 @@ const entries = computed(() => characters.inventory.map((item, index) => {
     v2Enabled: isV2EquipmentEnabled(base),
     resistances: itemResistances(item),
     displayName: translateLegacyText(getLegacyItemDisplayName(item)),
+    icon: itemTileIcon(item),
+    compare: compareArrow(item),
   }
 }))
 
@@ -229,7 +285,9 @@ function autoEquip() {
 
       <div v-if="items.length" class="legacy-bag-grid">
         <button v-for="entry in items" :key="entry.index" type="button" :class="[`quality-${entry.quality.toLowerCase()}`, { 'is-selected': selectedIndex === entry.index }]" @click="selectedIndex = entry.index">
+          <span v-if="entry.compare" class="legacy-bag-slot-compare" :class="entry.compare === '▲' ? 'is-upgrade' : entry.compare === '▼' ? 'is-downgrade' : 'is-equal'">{{ entry.compare }}</span>
           <span class="legacy-bag-slot-flags">{{ entry.record.locked ? '🔒' : '' }}{{ entry.record.favorite ? '★' : '' }}</span>
+          <span class="legacy-bag-slot-icon" aria-hidden="true">{{ entry.icon }}</span>
           <h3>{{ entry.displayName }}</h3>
           <small>{{ qualityLabels[entry.quality] }} · {{ itemCategory(entry.data) }}</small>
           <em>攻 {{ Number(entry.stats?.atk || 0) }} · 防 {{ Number(entry.stats?.def || 0) }}</em>
@@ -251,8 +309,8 @@ function autoEquip() {
           <section><strong>待装备抗性</strong><p v-if="!selected.resistances.length">无抗性</p><dl v-else><div v-for="entry in selected.resistances" :key="entry.element"><dt>{{ entry.label }}</dt><dd>{{ entry.value > 0 ? '+' : '' }}{{ entry.value }}</dd></div></dl></section>
           <section v-if="compared"><strong>当前装备抗性</strong><p v-if="!compared.resistances.length">无抗性</p><dl v-else><div v-for="entry in compared.resistances" :key="entry.element"><dt>{{ entry.label }}</dt><dd>{{ entry.value > 0 ? '+' : '' }}{{ entry.value }}</dd></div></dl></section>
         </div>
-        <dl v-if="compared" class="legacy-delta-list"><div v-for="key in ['atk', 'def', 'hp', 'mp']" :key="key"><dt>{{ { atk: '攻击差值', def: '防御差值', hp: '气血差值', mp: '法力差值' }[key] }}</dt><dd :class="{ 'is-positive': compared.delta[key as 'atk'] > 0, 'is-negative': compared.delta[key as 'atk'] < 0 }">{{ compared.delta[key as 'atk'] > 0 ? '+' : '' }}{{ compared.delta[key as 'atk'] }}</dd></div></dl>
-        <dl v-if="isV2 && resistanceDelta.length" class="legacy-delta-list"><div v-for="entry in resistanceDelta" :key="entry.element"><dt>{{ entry.label }}抗性差值</dt><dd :class="{ 'is-positive': entry.value > 0, 'is-negative': entry.value < 0 }">{{ entry.value > 0 ? '+' : '' }}{{ entry.value }}</dd></div></dl>
+        <dl v-if="compared" class="legacy-delta-list"><div v-for="key in ['atk', 'def', 'hp', 'mp']" :key="key"><dt>{{ { atk: '攻击差值', def: '防御差值', hp: '气血差值', mp: '法力差值' }[key] }}</dt><dd :class="{ 'is-positive': compared.delta[key as 'atk'] > 0, 'is-negative': compared.delta[key as 'atk'] < 0 }">{{ deltaArrow(compared.delta[key as 'atk']) }}{{ compared.delta[key as 'atk'] > 0 ? '+' : '' }}{{ compared.delta[key as 'atk'] }}</dd></div></dl>
+        <dl v-if="isV2 && resistanceDelta.length" class="legacy-delta-list"><div v-for="entry in resistanceDelta" :key="entry.element"><dt>{{ entry.label }}抗性差值</dt><dd :class="{ 'is-positive': entry.value > 0, 'is-negative': entry.value < 0 }">{{ deltaArrow(entry.value) }}{{ entry.value > 0 ? '+' : '' }}{{ entry.value }}</dd></div></dl>
         <div class="legacy-item-actions"><button v-if="selected.data?.slot" type="button" :disabled="isV2 && !selected.v2Enabled" @click="equip(selected.index)">{{ isV2 && !selected.v2Enabled ? '暂未收录' : '装备' }}</button><button type="button" @click="characters.toggleInventoryFlag(selected.index, 'locked')">{{ selected.record.locked ? '取消锁定' : '锁定' }}</button><button type="button" @click="characters.toggleInventoryFlag(selected.index, 'favorite')">{{ selected.record.favorite ? '取消收藏' : '收藏' }}</button><button class="is-danger" type="button" :disabled="Boolean(selected.record.locked || selected.record.favorite || (isV2 && actions.resting))" @click="sell(selected.index)">出售</button></div>
     </aside>
   </div>

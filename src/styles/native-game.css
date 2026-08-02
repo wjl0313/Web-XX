@@ -2359,6 +2359,11 @@
 .legacy-bag-grid h3 { margin: 0; overflow: hidden; color: inherit; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
 .legacy-bag-grid small { color: #9d947e; font-size: 9px; }
 .legacy-bag-grid em { margin-top: auto; color: #8fb7a0; font-size: 9px; font-style: normal; }
+.legacy-bag-slot-icon { font-size: 26px; line-height: 1; }
+.legacy-bag-slot-compare { position: absolute; top: 3px; left: 5px; font-size: 11px; font-weight: 700; line-height: 1; pointer-events: none; }
+.legacy-bag-slot-compare.is-upgrade { color: #22C55E; }
+.legacy-bag-slot-compare.is-downgrade { color: #EF4444; }
+.legacy-bag-slot-compare.is-equal { color: #8b8b7c; }
 .legacy-bag-slot-flags { position: absolute; top: 4px; right: 4px; font-size: 10px; }
 .legacy-pagination { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 8px; color: #a39982; font-size: 10px; }
 .legacy-empty-state { display: grid; min-height: 150px; place-content: center; gap: 5px; color: #9d957f; text-align: center; }

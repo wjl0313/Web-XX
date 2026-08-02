@@ -19,24 +19,33 @@ import {
   validateTechniqueLoadout,
 } from '../../src/game-core/rulesets/v2'
 import {
+  ALL_ITEM_DATA,
+  BOSS_BY_ZONE,
+  NAMED_BY_ZONE,
+  ZONES,
+} from '../../src/game-core/data'
+import {
   createNativeCharacter,
   importLegacyCharacterIdentity,
   importLegacySlotsToNative,
 } from '../../src/game-core/save'
 
 describe('P1 内容子集', () => {
-  it('只启用 4 传承、31 种标准灵根、5 区域、15 普通妖兽、5 精英和 2 首领', () => {
+  it('开放 4 传承、31 种标准灵根、全部历练区域、妖兽、精英和首领', () => {
     expect(V2_ENABLED_CLASS_IDS).toHaveLength(4)
     expect(V2_ENABLED_ROOT_IDS).toHaveLength(31)
-    expect(V2_ENABLED_ZONE_INDEXES).toEqual([0, 1, 2, 3, 4])
-    expect(V2_ZONES).toHaveLength(5)
-    expect(V2_ENABLED_MOB_IDS).toHaveLength(15)
-    expect(V2_ENABLED_ELITE_IDS).toHaveLength(5)
-    expect(V2_ENABLED_BOSS_IDS).toHaveLength(2)
-    expect(Object.values(V2_ENEMIES).filter((enemy) => enemy.rank === 'normal')).toHaveLength(15)
-    expect(Object.values(V2_ENEMIES).filter((enemy) => enemy.rank === 'elite')).toHaveLength(5)
-    expect(Object.values(V2_ENEMIES).filter((enemy) => enemy.rank === 'boss')).toHaveLength(2)
-    expect(V2_ZONES.filter((zone) => zone.bossId)).toHaveLength(2)
+    expect(V2_ENABLED_ZONE_INDEXES).toEqual(ZONES.map((_, index) => index))
+    expect(V2_ZONES).toHaveLength(ZONES.length)
+    const normalCount = ZONES.reduce((sum, zone) => sum + zone.mobs.length, 0)
+    const eliteCount = Object.values(NAMED_BY_ZONE).reduce((sum, names) => sum + names.length, 0)
+    const bossCount = Object.keys(BOSS_BY_ZONE).length
+    expect(V2_ENABLED_MOB_IDS).toHaveLength(normalCount)
+    expect(V2_ENABLED_ELITE_IDS).toHaveLength(eliteCount)
+    expect(V2_ENABLED_BOSS_IDS).toHaveLength(bossCount)
+    expect(Object.values(V2_ENEMIES).filter((enemy) => enemy.rank === 'normal')).toHaveLength(normalCount)
+    expect(Object.values(V2_ENEMIES).filter((enemy) => enemy.rank === 'elite')).toHaveLength(eliteCount)
+    expect(Object.values(V2_ENEMIES).filter((enemy) => enemy.rank === 'boss')).toHaveLength(bossCount)
+    expect(V2_ZONES.filter((zone) => zone.bossId)).toHaveLength(bossCount)
   })
 
   it('锁定 12 门功法与 3/2/2/2/2/1 属性分布', () => {
@@ -49,9 +58,9 @@ describe('P1 内容子集', () => {
     expect(Object.values(V2_CLASS_TECHNIQUES).every((ids) => ids.length === 3)).toBe(true)
   })
 
-  it('P1 装备白名单保持在 20～30 件范围', () => {
-    expect(V2_ENABLED_EQUIPMENT_IDS.length).toBeGreaterThanOrEqual(20)
-    expect(V2_ENABLED_EQUIPMENT_IDS.length).toBeLessThanOrEqual(30)
+  it('装备目录覆盖全部旧版装备', () => {
+    const allEquipment = Object.keys(ALL_ITEM_DATA).filter((id) => Boolean((ALL_ITEM_DATA as Record<string, { slot?: string }>)[id].slot))
+    expect(V2_ENABLED_EQUIPMENT_IDS.length).toBe(allEquipment.length)
     expect(new Set(V2_ENABLED_EQUIPMENT_IDS).size).toBe(V2_ENABLED_EQUIPMENT_IDS.length)
   })
 

@@ -59,10 +59,15 @@ export function normalizeV2AutoConfiguration(value: unknown, fallbackZone = 0): 
 function chooseEnemy(zoneIndex: number, seed: string, forceBoss = false, character?: LegacyCharacterSave): V2EnemyDefinition {
   const zone = V2_ZONES[Math.max(0, Math.min(V2_ZONES.length - 1, zoneIndex))]
   const random = createSeededRandom(`${seed}:enemy`)
+  const elitePool = zone.eliteIds && zone.eliteIds.length
+    ? zone.eliteIds
+    : zone.eliteId
+      ? [zone.eliteId]
+      : []
   const enemyId = forceBoss && zone.bossId
     ? zone.bossId
-    : random.chance(0.12)
-      ? zone.eliteId
+    : random.chance(0.12) && elitePool.length
+      ? random.pick(elitePool)
       : random.pick(zone.mobIds)
   return getV2EnemyCatalog(character)[enemyId]
 }
@@ -134,7 +139,6 @@ export function simulateV2AutoEncounter(
     if (enemy.rank === 'boss' && config.stopAtBoss) stopReason = '首领战停止'
   } else if (transition.state.result.outcome === 'defeat') {
     character.hp = 1
-    stopReason = '角色死亡'
   }
   character = startV2RestBelowThreshold(character, config.meditationThreshold, 'post_battle', options.now)
   character.v2LastBattle = {

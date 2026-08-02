@@ -1,5 +1,12 @@
 import type { CharacterClassId } from '../../domain'
 import { P2_ROOT_PROFILES } from '../../domain/progression'
+import {
+  ALL_ITEM_DATA,
+  BOSS_BY_ZONE,
+  NAMED_BY_ZONE,
+  ZONES,
+  translateLegacyText,
+} from '../../data'
 import type {
   Element,
   ElementResistances,
@@ -15,8 +22,10 @@ export interface V2ZoneDefinition {
   description: string
   minimumLevel: number
   maximumLevel: number
+  spiritualAbundance: number
   mobIds: readonly string[]
   eliteId: string
+  eliteIds?: readonly string[]
   bossId?: string
 }
 
@@ -118,67 +127,260 @@ export const V2_CLASS_TECHNIQUES: Readonly<Record<CharacterClassId, readonly str
   影修: ['shadow_assault', 'mystic_water_bind', 'heartburn_venom'],
 } as Partial<Record<CharacterClassId, readonly string[]>> as Record<CharacterClassId, readonly string[]>)
 
-export const V2_ZONES: readonly V2ZoneDefinition[] = Object.freeze([
-  { id: 'green_bamboo_grove', legacyZoneIndex: 0, displayName: '青竹林', description: '灵气稀薄的入门历练地。', minimumLevel: 1, maximumLevel: 4, mobIds: ['spirit_field_rat', 'crimson_eye_bat', 'bone_whelp'], eliteId: 'rabid_rat_king', bossId: 'vermin_tyrant' },
-  { id: 'howlfang_cavern', legacyZoneIndex: 1, displayName: '啸月妖穴', description: '狼妖盘踞的阴暗洞窟。', minimumLevel: 3, maximumLevel: 6, mobIds: ['young_wolf_demon', 'wolf_demon_warrior', 'wolf_demon_shaman'], eliteId: 'howlfang_blood_shaman' },
-  { id: 'withered_spring_manor', legacyZoneIndex: 2, displayName: '荒泉废府', description: '游尸与残魂出没的废弃府邸。', minimumLevel: 7, maximumLevel: 12, mobIds: ['wandering_corpse', 'decaying_soul', 'yin_wraith'], eliteId: 'manor_revenant' },
-  { id: 'dread_ancient_hall', legacyZoneIndex: 3, displayName: '惊魂古殿', description: '惊惧魔灵栖居的破败古殿。', minimumLevel: 15, maximumLevel: 21, mobIds: ['marsh_frog_slave', 'dread_spirit', 'ancient_stalker'], eliteId: 'dread_warbringer' },
-  { id: 'asura_abyss', legacyZoneIndex: 4, displayName: '修罗魔渊', description: '魔气深重的高危历练地。', minimumLevel: 30, maximumLevel: 37, mobIds: ['asura_servant', 'black_iron_cultivator', 'half_lich'], eliteId: 'ebon_oathkeeper', bossId: 'abyss_lord' },
-])
-
-function resistances(values: Partial<ElementResistances>): ElementResistances {
-  return normalizeElementResistances(values)
+interface LegacyZoneRow {
+  name: string
+  desc: string
+  minLvl: number
+  maxLvl: number
+  mobs: readonly string[]
+  xpMult: number
+  goldMult: number
+  rare: string
 }
 
-function enemy(
-  id: string,
-  displayName: string,
-  zoneId: string,
-  rank: V2EnemyDefinition['rank'],
-  level: number,
-  element: Element,
-  stats: [number, number, number, number, number, number],
-  loadout: TechniqueLoadout,
-  reward: [number, number, string?],
-  resistanceValues: Partial<ElementResistances> = {},
-): V2EnemyDefinition {
-  const [hp, mp, attack, defense, spirit, agility] = stats
-  return {
-    id, displayName, zoneId, rank, level, element, hp, mp, attack, defense, spirit,
-    physique: Math.max(8, Math.floor(hp / 10)), agility, criticalChance: rank === 'boss' ? 0.12 : 0.06,
-    resistances: resistances(resistanceValues), techniqueLoadout: loadout,
-    rewards: { xp: reward[0], gold: reward[1], itemId: reward[2] || null },
-  }
-}
+const LEGACY_ZONES = ZONES as readonly LegacyZoneRow[]
+const LEGACY_NAMED_BY_ZONE = NAMED_BY_ZONE as Readonly<Record<number, readonly string[]>>
+const LEGACY_BOSS_BY_ZONE = BOSS_BY_ZONE as Readonly<Record<number, { name: string; mob: string; mechanic: string }>>
 
-const loadout = (...ids: Array<string | null>): TechniqueLoadout => ({
-  slots: [ids[0] || null, ids[1] || null, ids[2] || null],
+const LEGACY_MOB_ID_OVERRIDES: Readonly<Record<string, string>> = Object.freeze({
+  'Field Rat': 'spirit_field_rat',
+  'Rabid Bat': 'crimson_eye_bat',
+  'Skeleton Pup': 'bone_whelp',
+  'Gnoll Pup': 'young_wolf_demon',
+  'Gnoll Warrior': 'wolf_demon_warrior',
+  'Gnoll Shaman': 'wolf_demon_shaman',
+  'Restless Zombie': 'wandering_corpse',
+  'Decaying Spectre': 'decaying_soul',
+  'Wraith': 'yin_wraith',
+  'Bullywug Slave': 'marsh_frog_slave',
+  'Fear Elemental': 'dread_spirit',
+  'Dread Stalker': 'ancient_stalker',
+  'Asmodean Servant': 'asura_servant',
+  'Ebon Mace Wielder': 'black_iron_cultivator',
+  'Demi-Lich': 'half_lich',
+  'a rabid rat king': 'rabid_rat_king',
+  'a howlfang bloodshaman': 'howlfang_blood_shaman',
+  'a manor revenant': 'manor_revenant',
+  'a dread warbringer': 'dread_warbringer',
+  'an ebon oathkeeper': 'ebon_oathkeeper',
+  'Vermin Tyrant': 'vermin_tyrant',
 })
 
-export const V2_ENEMIES: Readonly<Record<string, V2EnemyDefinition>> = Object.freeze(Object.fromEntries([
-  enemy('spirit_field_rat', '灵田鼠', 'green_bamboo_grove', 'normal', 1, 'earth', [64, 20, 10, 4, 6, 8], loadout('mountain_breaking_fist'), [24, 10, 'Rusty Dagger'], { earth: 8 }),
-  enemy('crimson_eye_bat', '赤目蝠', 'green_bamboo_grove', 'normal', 2, 'wind', [58, 24, 11, 3, 8, 13], loadout('shadow_assault'), [27, 11, 'Rawhide Boots'], { wind: 12 }),
-  enemy('bone_whelp', '白骨幼妖', 'green_bamboo_grove', 'normal', 3, 'dark', [78, 18, 12, 7, 5, 7], loadout('mountain_breaking_fist'), [31, 13, 'Tattered Robe'], { dark: 12 }),
-  enemy('young_wolf_demon', '幼年狼妖', 'howlfang_cavern', 'normal', 4, 'wind', [92, 28, 15, 7, 7, 14], loadout('shadow_assault'), [38, 17, 'Worn Shortsword'], { wind: 10 }),
-  enemy('wolf_demon_warrior', '狼妖战士', 'howlfang_cavern', 'normal', 5, 'metal', [112, 26, 18, 11, 6, 10], loadout('metal_severing_needle'), [43, 19, 'Studded Jerkin'], { metal: 12 }),
-  enemy('wolf_demon_shaman', '狼妖祭司', 'howlfang_cavern', 'normal', 6, 'wood', [90, 48, 12, 7, 18, 9], loadout('thorn_decay', 'verdant_rejuvenation'), [47, 22, 'Gnoll Fang Earring'], { wood: 14 }),
-  enemy('wandering_corpse', '游尸', 'withered_spring_manor', 'normal', 8, 'earth', [145, 20, 21, 15, 6, 5], loadout('mountain_breaking_fist'), [64, 30, 'Chain Legguards'], { earth: 16 }),
-  enemy('decaying_soul', '朽魂', 'withered_spring_manor', 'normal', 9, 'dark', [118, 58, 18, 9, 24, 12], loadout('heartburn_venom'), [70, 34, 'Dread Quill'], { dark: 18 }),
-  enemy('yin_wraith', '阴灵', 'withered_spring_manor', 'normal', 11, 'ice', [128, 62, 20, 10, 26, 16], loadout('mystic_water_bind'), [78, 39, 'Frostwoven Mantle'], { ice: 18 }),
-  enemy('marsh_frog_slave', '沼泽蛙奴', 'dread_ancient_hall', 'normal', 16, 'water', [205, 50, 29, 20, 14, 12], loadout('thorn_decay'), [110, 52, 'Bone Ward Totem'], { water: 20 }),
-  enemy('dread_spirit', '惊惧魔灵', 'dread_ancient_hall', 'normal', 18, 'dark', [178, 82, 25, 15, 36, 17], loadout('heartburn_venom', 'mystic_water_bind'), [122, 58, 'Storm Orb'], { dark: 22 }),
-  enemy('ancient_stalker', '古殿伏妖', 'dread_ancient_hall', 'normal', 20, 'wind', [220, 55, 34, 18, 18, 24], loadout('shadow_assault'), [138, 65, 'Iron Sabatons'], { wind: 22 }),
-  enemy('asura_servant', '修罗奴仆', 'asura_abyss', 'normal', 31, 'fire', [360, 90, 48, 30, 28, 20], loadout('scarlet_flame_art'), [220, 108, 'Hate Infused Plate'], { fire: 25 }),
-  enemy('black_iron_cultivator', '黑铁魔修', 'asura_abyss', 'normal', 34, 'metal', [420, 75, 56, 40, 22, 18], loadout('gengjin_sword_art', 'metal_severing_needle'), [245, 122, 'Glacite Spear'], { metal: 28 }),
-  enemy('half_lich', '半步尸王', 'asura_abyss', 'normal', 37, 'dark', [390, 125, 45, 31, 58, 22], loadout('heartburn_venom', 'cold_spring_breath'), [280, 140, 'Knight Chestplate'], { dark: 30 }),
-  enemy('rabid_rat_king', '狂疫鼠王', 'green_bamboo_grove', 'elite', 4, 'earth', [145, 36, 19, 11, 9, 11], loadout('mountain_breaking_fist', 'earth_guardian_aegis'), [75, 34, 'Scaled Cuirass'], { earth: 20 }),
-  enemy('howlfang_blood_shaman', '啸月血祭师', 'howlfang_cavern', 'elite', 7, 'wood', [175, 76, 22, 13, 28, 14], loadout('thorn_decay', 'verdant_rejuvenation'), [96, 45, 'Runed Mace'], { wood: 24 }),
-  enemy('manor_revenant', '废府怨主', 'withered_spring_manor', 'elite', 12, 'dark', [245, 95, 31, 20, 38, 15], loadout('heartburn_venom', 'mystic_water_bind'), [140, 68, 'Ghoul-Touched Cloak'], { dark: 28 }),
-  enemy('dread_warbringer', '惊魂战将', 'dread_ancient_hall', 'elite', 21, 'metal', [365, 95, 47, 31, 28, 21], loadout('gengjin_sword_art', 'metal_severing_needle'), [210, 102, 'Mirror Shield'], { metal: 30 }),
-  enemy('ebon_oathkeeper', '玄铁执印者', 'asura_abyss', 'elite', 38, 'fire', [620, 150, 68, 48, 46, 25], loadout('scarlet_flame_art', 'heartburn_venom'), [360, 180, 'Runed Greaves'], { fire: 34 }),
-  enemy('vermin_tyrant', '赤目妖王', 'green_bamboo_grove', 'boss', 5, 'earth', [260, 70, 27, 18, 16, 13], loadout('mountain_breaking_fist', 'earth_guardian_aegis', 'metal_severing_needle'), [165, 82, 'Warden Idol'], { earth: 28, wood: -10 }),
-  enemy('abyss_lord', '魔渊君主', 'asura_abyss', 'boss', 40, 'fire', [980, 240, 82, 62, 70, 29], loadout('scarlet_flame_art', 'heartburn_venom', 'golden_bell_guard'), [680, 340, 'Astral Loop'], { fire: 45, water: -18, dark: 35 }),
-].map((entry) => [entry.id, entry])))
+const LEGACY_REWARD_ITEM_OVERRIDES: Readonly<Record<string, string>> = Object.freeze({
+  spirit_field_rat: 'Rusty Dagger',
+  crimson_eye_bat: 'Rawhide Boots',
+  bone_whelp: 'Tattered Robe',
+  young_wolf_demon: 'Worn Shortsword',
+  wolf_demon_warrior: 'Studded Jerkin',
+  wolf_demon_shaman: 'Gnoll Fang Earring',
+  wandering_corpse: 'Chain Legguards',
+  decaying_soul: 'Dread Quill',
+  yin_wraith: 'Frostwoven Mantle',
+  marsh_frog_slave: 'Bone Ward Totem',
+  dread_spirit: 'Storm Orb',
+  ancient_stalker: 'Iron Sabatons',
+  asura_servant: 'Hate Infused Plate',
+  black_iron_cultivator: 'Glacite Spear',
+  half_lich: 'Knight Chestplate',
+})
+
+function slug(value: string): string {
+  const normalized = value.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '')
+  return normalized || 'enemy'
+}
+
+function legacyMobId(name: string): string {
+  return LEGACY_MOB_ID_OVERRIDES[name] || slug(name)
+}
+
+const ELEMENT_CYCLE: readonly Element[] = ['metal', 'wood', 'water', 'fire', 'earth'] as const
+
+function enemyElement(name: string, zoneIndex: number, rank: V2EnemyDefinition['rank']): Element {
+  const lower = name.toLowerCase()
+  if (/(fire|flame|ember|inferno|pyre|ash|forge|molten|lava|magma|cinder|sun|star)/.test(lower)) return 'fire'
+  if (/(frost|ice|glac|frozen|cold|crystal|snow)/.test(lower)) return 'ice'
+  if (/(thunder|lightning|storm|tempest|sky|cyclone|wind|cloud|gale)/.test(lower)) return rank === 'boss' ? 'thunder' : 'wind'
+  if (/(shadow|dark|void|night|umbra|shade|wraith|ghost|spirit|undead|lich|bone|skeleton|corpse|zombie)/.test(lower)) return 'dark'
+  if (/(wood|forest|tree|thicket|plant|vine|spore|moss|nature)/.test(lower)) return 'wood'
+  if (/(water|sea|tide|lake|bog|marsh|swamp|frog|snake|serpent|fish|coral|river)/.test(lower)) return 'water'
+  if (/(stone|rock|earth|mountain|cliff|sand|dune|golem|slime|ooze)/.test(lower)) return 'earth'
+  if (/(metal|iron|steel|blade|sword|axe|hammer|knight|plate|sentinel)/.test(lower)) return 'metal'
+  return ELEMENT_CYCLE[zoneIndex % ELEMENT_CYCLE.length]
+}
+
+const ENEMY_TECHNIQUES: Readonly<Record<Element, readonly string[]>> = Object.freeze({
+  neutral: ['mountain_breaking_fist'],
+  metal: ['gengjin_sword_art', 'metal_severing_needle'],
+  wood: ['thorn_decay', 'verdant_rejuvenation'],
+  water: ['mystic_water_bind', 'cold_spring_breath'],
+  fire: ['scarlet_flame_art', 'heartburn_venom'],
+  earth: ['earth_guardian_aegis', 'mountain_breaking_fist'],
+  thunder: ['scarlet_flame_art', 'mystic_water_bind'],
+  ice: ['mystic_water_bind', 'cold_spring_breath'],
+  wind: ['shadow_assault', 'mystic_water_bind'],
+  dark: ['heartburn_venom', 'metal_severing_needle'],
+})
+
+function enemyLoadout(element: Element, rank: V2EnemyDefinition['rank']): TechniqueLoadout {
+  const pool = ENEMY_TECHNIQUES[element] || ENEMY_TECHNIQUES.neutral
+  const slots: [string | null, string | null, string | null] = [pool[0] || null, pool[1] || null, null]
+  if (rank === 'boss') slots[2] = pool[0] || null
+  return { slots }
+}
+
+function enemyResistances(element: Element, rank: V2EnemyDefinition['rank']): Partial<ElementResistances> {
+  if (element === 'neutral') return {}
+  return { [element]: rank === 'boss' ? 42 : rank === 'elite' ? 28 : 16 }
+}
+
+function scaleLegacyMobHp(rawHp: number, level: number): number {
+  if (level <= 30) return Math.max(1, Math.floor(rawHp))
+  const bonus = Math.min(2.4, (level - 30) * 0.012)
+  return Math.max(1, Math.floor(rawHp * (1 + bonus)))
+}
+
+function enemyStats(level: number, rank: V2EnemyDefinition['rank']): [number, number, number, number, number, number] {
+  const hpMultiplier = rank === 'boss' ? 4.8 : rank === 'elite' ? 2.4 : 1
+  const attackMultiplier = rank === 'boss' ? 1.75 : rank === 'elite' ? 1.35 : 1
+  const defenseMultiplier = rank === 'boss' ? 1.5 : rank === 'elite' ? 1.25 : 1
+  const hp = scaleLegacyMobHp((80 + level * 38) * hpMultiplier, level)
+  const attack = Math.max(1, Math.floor((8 + level * 2.2 + Math.pow(level, 1.45) * 0.55) * attackMultiplier))
+  const defense = Math.max(0, Math.floor((2 + level) * defenseMultiplier))
+  const mp = Math.max(10, Math.floor((8 + level * 2) * (rank === 'boss' ? 1.8 : rank === 'elite' ? 1.4 : 1)))
+  const spirit = Math.max(4, Math.floor((3 + level * 0.8) * (rank === 'boss' ? 1.6 : rank === 'elite' ? 1.3 : 1)))
+  const agility = Math.max(4, Math.floor((4 + level * 0.7) * (rank === 'boss' ? 1.2 : rank === 'elite' ? 1.15 : 1)))
+  return [hp, mp, attack, defense, spirit, agility]
+}
+
+function enemyLevel(zone: LegacyZoneRow, index: number, rank: V2EnemyDefinition['rank']): number {
+  if (rank === 'boss') return zone.maxLvl + 2
+  if (rank === 'elite') return Math.min(zone.maxLvl, zone.minLvl + 2 + Math.floor((zone.maxLvl - zone.minLvl) * 0.55))
+  return zone.minLvl + Math.floor((zone.maxLvl - zone.minLvl) * (index + 1) / 4)
+}
+
+function zoneSpiritualAbundance(zone: LegacyZoneRow): number {
+  const levelAnchor = Math.max(2, (zone.minLvl + zone.maxLvl) / 2)
+  const value = 0.6 + Math.log2(levelAnchor + 2) * 0.35
+  return Math.max(0.5, Math.min(6, Math.round(value * 100) / 100))
+}
+
+function buildGeneratedEnemies(): Readonly<Record<string, V2EnemyDefinition>> {
+  const result: Record<string, V2EnemyDefinition> = {}
+  const used = new Set<string>()
+
+  function addEnemy(
+    id: string,
+    displayName: string,
+    zoneId: string,
+    zoneIndex: number,
+    rank: V2EnemyDefinition['rank'],
+    level: number,
+    element: Element,
+    rareItem: string | null,
+  ): void {
+    const uniqueId = used.has(id) ? `${id}_${zoneIndex}` : id
+    used.add(uniqueId)
+    const [hp, mp, attack, defense, spirit, agility] = enemyStats(level, rank)
+    const zone = LEGACY_ZONES[zoneIndex]
+    const xpMultiplier = rank === 'boss' ? 5 : rank === 'elite' ? 3 : 1
+    const goldMultiplier = rank === 'boss' ? 4 : rank === 'elite' ? 1.6 : 1
+    result[uniqueId] = {
+      id: uniqueId,
+      displayName,
+      zoneId,
+      rank,
+      level,
+      element,
+      hp,
+      mp,
+      attack,
+      defense,
+      spirit,
+      physique: Math.max(8, Math.floor(hp / 10)),
+      agility,
+      criticalChance: rank === 'boss' ? 0.12 : rank === 'elite' ? 0.07 : 0.05,
+      resistances: normalizeElementResistances(enemyResistances(element, rank)),
+      techniqueLoadout: enemyLoadout(element, rank),
+      rewards: {
+        xp: Math.max(1, Math.floor((20 + level * 15) * zone.xpMult * xpMultiplier)),
+        gold: Math.max(1, Math.floor((level * 2 + 3) * zone.goldMult * goldMultiplier)),
+        itemId: rareItem,
+      },
+    }
+  }
+
+  LEGACY_ZONES.forEach((zone, zoneIndex) => {
+    const zoneId = slug(zone.name)
+    zone.mobs.forEach((mobName, index) => {
+      const level = enemyLevel(zone, index, 'normal')
+      const enemyId = legacyMobId(mobName)
+      addEnemy(
+        enemyId,
+        translateLegacyText(mobName),
+        zoneId,
+        zoneIndex,
+        'normal',
+        level,
+        enemyElement(mobName, zoneIndex, 'normal'),
+        LEGACY_REWARD_ITEM_OVERRIDES[enemyId] || null,
+      )
+    })
+    const named = LEGACY_NAMED_BY_ZONE[zoneIndex] || []
+    named.forEach((name, index) => {
+      const level = enemyLevel(zone, index, 'elite')
+      const rareItem = zone.rare && (ALL_ITEM_DATA as Record<string, { slot?: string }>)[zone.rare]?.slot ? zone.rare : null
+      addEnemy(
+        legacyMobId(name),
+        translateLegacyText(name),
+        zoneId,
+        zoneIndex,
+        'elite',
+        level,
+        enemyElement(name, zoneIndex, 'elite'),
+        rareItem,
+      )
+    })
+    const boss = LEGACY_BOSS_BY_ZONE[zoneIndex]
+    if (boss) {
+      const rareItem = zone.rare && (ALL_ITEM_DATA as Record<string, { slot?: string }>)[zone.rare]?.slot ? zone.rare : null
+      addEnemy(
+        legacyMobId(boss.name),
+        translateLegacyText(boss.name),
+        zoneId,
+        zoneIndex,
+        'boss',
+        enemyLevel(zone, 0, 'boss'),
+        enemyElement(boss.name, zoneIndex, 'boss'),
+        rareItem,
+      )
+    }
+  })
+  return Object.freeze(result)
+}
+
+const GENERATED_V2_ENEMIES = buildGeneratedEnemies()
+
+export const V2_ENEMIES: Readonly<Record<string, V2EnemyDefinition>> = GENERATED_V2_ENEMIES
+
+export const V2_ZONES: readonly V2ZoneDefinition[] = Object.freeze(LEGACY_ZONES.map((zone, index) => {
+  const zoneId = slug(zone.name)
+  const namedIds = (LEGACY_NAMED_BY_ZONE[index] || []).map(legacyMobId)
+  const boss = LEGACY_BOSS_BY_ZONE[index]
+  const translatedDescription = translateLegacyText(zone.desc)
+  return {
+    id: zoneId,
+    legacyZoneIndex: index,
+    displayName: translateLegacyText(zone.name),
+    description: translatedDescription === zone.desc ? `${translateLegacyText(zone.name)}的历练之地。` : translatedDescription,
+    minimumLevel: zone.minLvl,
+    maximumLevel: zone.maxLvl,
+    spiritualAbundance: zoneSpiritualAbundance(zone),
+    mobIds: zone.mobs.map(legacyMobId),
+    eliteId: namedIds[0] || '',
+    eliteIds: namedIds,
+    bossId: boss ? legacyMobId(boss.name) : undefined,
+  }
+}))
 
 export const V2_EQUIPMENT_PROFILES: Readonly<Record<string, V2EquipmentProfile>> = Object.freeze({
   'Glacite Spear': { id: 'Glacite Spear', resistances: { ice: 12 } },

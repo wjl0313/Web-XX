@@ -78,9 +78,7 @@ export const useAfkStore = defineStore('afk', () => {
     if (!completed?.result || completed.id === lastHandledV2BattleId) return
     lastHandledV2BattleId = completed.id
     const configuration = v2Application.getConfiguration(saves.activeCharacter!)
-    if (completed.result.outcome === 'defeat') {
-      stopV2ForReason('角色死亡')
-    } else if (completed.encounter.boss && configuration.stopAtBoss) {
+    if (completed.encounter.boss && configuration.stopAtBoss) {
       stopV2ForReason('首领战停止')
     } else if (combat.lastV2InventoryFull && configuration.stopWhenInventoryFull) {
       stopV2ForReason('背包已满')

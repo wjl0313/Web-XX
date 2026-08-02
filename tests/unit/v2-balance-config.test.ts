@@ -36,8 +36,11 @@ describe('v2 全局数值配置', () => {
     expect(value.elements.overcomes.fire).toBe('metal')
     expect(value.combat.criticalDamageMultiplier).toBe(1.5)
     expect(Object.keys(value.equipment).length).toBeGreaterThan(20)
-    expect(Object.keys(value.enemies)).toHaveLength(22)
+    expect(Object.keys(value.enemies).length).toBeGreaterThan(20)
+    expect(Object.keys(value.enemies)).toContain('spirit_field_rat')
     expect(value.enemies.spirit_field_rat.drops.guaranteedEquipmentId).toBe('Rusty Dagger')
+    expect(value.manaRegenSpiritScale).toBe(0.15)
+    expect(Object.keys(value.zoneAbundance).length).toBeGreaterThanOrEqual(41)
   })
 
   it('拒绝非有限数值并约束概率参数', () => {

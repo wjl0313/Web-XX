@@ -83,6 +83,8 @@ function breakthrough() {
           <div><dt>防御</dt><dd>{{ character.def }}</dd></div>
           <div v-if="isV2"><dt>境界</dt><dd>{{ progression.realm?.displayName }}</dd></div>
           <div v-if="isV2"><dt>本命五行</dt><dd>{{ ELEMENT_LABELS[v2Actor?.element || 'neutral'] }}</dd></div>
+          <div v-if="isV2"><dt>法力恢复</dt><dd>每秒 {{ actions.manaRecoveryPerSecond }}</dd></div>
+          <div v-if="isV2"><dt>灵力充沛</dt><dd>×{{ actions.zoneAbundance }}</dd></div>
         </dl>
 
         <div v-if="isV2" class="legacy-abilities">

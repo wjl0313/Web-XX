@@ -2,7 +2,7 @@ import type { LegacyCharacterSave } from '../../save/types'
 import { ALL_ITEM_DATA } from '../../data'
 import { GROWTH_STRATEGIES } from '../../domain/progression/growth-strategy'
 import { V2_ENABLED_EQUIPMENT_IDS } from './content.flags'
-import { V2_ENEMIES, V2_EQUIPMENT_PROFILES, V2_TECHNIQUES } from './content'
+import { V2_ENEMIES, V2_EQUIPMENT_PROFILES, V2_TECHNIQUES, V2_ZONES } from './content'
 import type { AbilityKey, Element, ElementResistances, TechniqueDefinition } from './types'
 
 export const V2_BALANCE_CONFIG_VERSION = 1
@@ -21,6 +21,10 @@ export interface V2BalanceConfig {
   healingPillBase: number
   healingPillPhysiqueScale: number
   manaPillMaximumRatio: number
+  manaRegenBasePerSecond: number
+  manaRegenSpiritScale: number
+  manaRegenRealmScale: number
+  manaRegenMinimumPerSecond: number
 }
 
 export const V2_BALANCE_CLASS_IDS = ['炼体士', '丹医', '五行法修', '影修'] as const
@@ -125,6 +129,7 @@ export interface V2GameBalanceConfig extends V2BalanceConfig {
   combat: V2CombatBalanceConfig
   equipment: Record<string, V2EquipmentBalanceProfile>
   enemies: Record<string, V2EnemyBalanceProfile>
+  zoneAbundance: Record<string, number>
 }
 
 export interface V2BattleRuntimeConfig {
@@ -136,7 +141,7 @@ export interface V2BattleRuntimeConfig {
 }
 
 export type V2BalanceConfigKey = keyof V2BalanceConfig
-export type V2BalanceConfigGroup = 'postBattle' | 'rest' | 'pill'
+export type V2BalanceConfigGroup = 'postBattle' | 'rest' | 'pill' | 'mana'
 
 export interface V2BalanceParameterDefinition {
   key: V2BalanceConfigKey
@@ -163,6 +168,10 @@ export const DEFAULT_V2_BALANCE_CONFIG: Readonly<V2BalanceConfig> = Object.freez
   healingPillBase: 20,
   healingPillPhysiqueScale: 3,
   manaPillMaximumRatio: 0.40,
+  manaRegenBasePerSecond: 0.5,
+  manaRegenSpiritScale: 0.15,
+  manaRegenRealmScale: 0.08,
+  manaRegenMinimumPerSecond: 0.25,
 })
 
 const DEFAULT_CLASS_BALANCE: Record<V2BalanceClassId, V2ClassBalanceProfile> = {
@@ -241,6 +250,7 @@ export const DEFAULT_V2_GAME_BALANCE_CONFIG: Readonly<V2GameBalanceConfig> = Obj
   },
   equipment: createDefaultEquipmentBalance(),
   enemies: createDefaultEnemyBalance(),
+  zoneAbundance: Object.fromEntries(V2_ZONES.map((zone) => [zone.id, zone.spiritualAbundance])),
 })
 
 export const V2_BALANCE_PARAMETERS: readonly V2BalanceParameterDefinition[] = Object.freeze([
@@ -257,6 +267,10 @@ export const V2_BALANCE_PARAMETERS: readonly V2BalanceParameterDefinition[] = Ob
   { key: 'healingPillBase', group: 'pill', label: '回春丹基础药力', description: '回春丹不受属性影响的固定恢复点数。', min: 0, max: 10_000, step: 1, unit: '点' },
   { key: 'healingPillPhysiqueScale', group: 'pill', label: '回春丹体魄系数', description: '每点体魄为回春丹增加的恢复点数。', min: 0, max: 100, step: 0.1, unit: '倍率' },
   { key: 'manaPillMaximumRatio', group: 'pill', label: '回灵丹恢复比例', description: '回灵丹按最大法力恢复的比例。', min: 0, max: 1, step: 0.01, unit: '%' },
+  { key: 'manaRegenBasePerSecond', group: 'mana', label: '法力基础恢复/秒', description: '场景被动法力恢复的固定基础值。', min: 0, max: 100, step: 0.05, unit: '点' },
+  { key: 'manaRegenSpiritScale', group: 'mana', label: '每点神识恢复系数', description: '神识 × 灵力充沛度 × 此系数决定场景法力恢复。', min: 0, max: 10, step: 0.01, unit: '倍率' },
+  { key: 'manaRegenRealmScale', group: 'mana', label: '境界成长系数', description: '每提升一档境界，法力恢复按此比例成长。', min: 0, max: 1, step: 0.01, unit: '倍率' },
+  { key: 'manaRegenMinimumPerSecond', group: 'mana', label: '法力恢复每秒保底', description: '场景被动法力恢复每秒至少恢复的值。', min: 0, max: 100, step: 0.05, unit: '点' },
 ])
 
 function record(value: unknown): Record<string, unknown> {
@@ -311,6 +325,13 @@ export function normalizeV2GameBalanceConfig(value: unknown): V2GameBalanceConfi
     enemy.drops.guaranteedEquipmentChance = Math.max(0, Math.min(1, enemy.drops.guaranteedEquipmentChance))
     enemy.drops.herbDropChance = Math.max(0, Math.min(1, enemy.drops.herbDropChance))
     enemy.drops.techniqueChance = Math.max(0, Math.min(1, enemy.drops.techniqueChance))
+  }
+  for (const [id, enemy] of Object.entries(normalized.enemies)) {
+    const fallback = DEFAULT_V2_GAME_BALANCE_CONFIG.enemies[id]
+    if (!fallback) continue
+    enemy.drops.equipmentPool = Array.from(new Set([...enemy.drops.equipmentPool, ...fallback.drops.equipmentPool]))
+    enemy.drops.herbPool = Array.from(new Set([...enemy.drops.herbPool, ...fallback.drops.herbPool]))
+    enemy.drops.techniquePool = Array.from(new Set([...enemy.drops.techniquePool, ...fallback.drops.techniquePool]))
   }
   return normalized
 }

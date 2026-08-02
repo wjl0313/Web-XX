@@ -7,6 +7,7 @@ import {
   V2_BALANCE_CLASS_IDS,
   V2_BALANCE_PARAMETERS,
   V2_ENEMIES,
+  V2_ZONES,
   calculateV2PostBattleRecovery,
   getCharacterRuleset,
   type AbilityKey,
@@ -25,7 +26,7 @@ import { useCombatStore } from '../../stores/combat.store'
 import { useSaveStore } from '../../stores/save.store'
 import { useUiStore } from '../../stores/ui.store'
 
-type ConsoleTab = 'combat' | 'growth' | 'techniques' | 'equipment' | 'enemies' | 'recovery' | 'json'
+type ConsoleTab = 'combat' | 'growth' | 'techniques' | 'equipment' | 'enemies' | 'zones' | 'recovery' | 'json'
 
 const balance = useBalanceStore()
 const saves = useSaveStore()
@@ -42,6 +43,7 @@ const selectedGrowthId = ref('balanced')
 const selectedTechniqueId = ref(Object.keys(draft.value.techniques)[0] || '')
 const selectedEquipmentId = ref(Object.keys(draft.value.equipment)[0] || '')
 const selectedEnemyId = ref(Object.keys(draft.value.enemies)[0] || '')
+const selectedZoneId = ref(V2_ZONES[0]?.id || '')
 const jsonText = ref('')
 const locked = computed(() => combat.inCombat || afk.running || actions.resting)
 const dirty = computed(() => JSON.stringify(draft.value) !== JSON.stringify(balance.configuration))
@@ -50,6 +52,12 @@ const selectedGrowth = computed(() => draft.value.growthStrategies[selectedGrowt
 const selectedTechnique = computed(() => draft.value.techniques[selectedTechniqueId.value])
 const selectedEquipment = computed<V2EquipmentBalanceProfile>(() => draft.value.equipment[selectedEquipmentId.value])
 const selectedEnemy = computed<V2EnemyBalanceProfile>(() => draft.value.enemies[selectedEnemyId.value])
+const selectedZone = computed<number>({
+  get: () => Number(draft.value.zoneAbundance[selectedZoneId.value] ?? 1),
+  set: (value: number) => {
+    draft.value.zoneAbundance[selectedZoneId.value] = Math.max(0.1, Math.min(20, Number(value) || 1))
+  },
+})
 const techniqueOptions = computed(() => Object.values(draft.value.techniques))
 const enemyOptions = computed(() => Object.keys(draft.value.enemies).map((id) => ({ id, label: V2_ENEMIES[id]?.displayName || id })))
 const recoveryPreview = computed(() => saves.activeCharacter && getCharacterRuleset(saves.activeCharacter) === 'v2'
@@ -62,6 +70,7 @@ const tabs: readonly { id: ConsoleTab; label: string }[] = [
   { id: 'techniques', label: '功法' },
   { id: 'equipment', label: '装备' },
   { id: 'enemies', label: '怪物与掉落' },
+  { id: 'zones', label: '场景灵力' },
   { id: 'recovery', label: '恢复与丹药' },
   { id: 'json', label: 'JSON' },
 ]
@@ -205,8 +214,13 @@ watch(() => balance.revision, () => { draft.value = clone(balance.configuration)
       <fieldset><legend>五行抗性</legend><div class="balance-field-grid"><label v-for="element in resistedElements" :key="element"><span>{{ ELEMENT_LABELS[element] }}</span><input v-model.number="selectedEnemy.resistances[element]" type="number" min="-100" max="100" step="1" /></label></div></fieldset>
     </div>
 
+    <div v-else-if="tab === 'zones'" class="balance-console__body">
+      <div class="balance-selectors"><label><span>历练区域</span><select v-model="selectedZoneId"><option v-for="zone in V2_ZONES" :key="zone.id" :value="zone.id">{{ zone.displayName }}</option></select></label></div>
+      <fieldset><legend>{{ V2_ZONES.find((zone) => zone.id === selectedZoneId)?.displayName || selectedZoneId }}灵力充沛度</legend><div class="balance-field-grid"><label><span>灵力充沛度</span><input v-model.number="selectedZone" type="number" min="0.1" max="20" step="0.05" /><small>倍率</small></label></div></fieldset>
+    </div>
+
     <div v-else-if="tab === 'recovery'" class="balance-console__body">
-      <fieldset><legend>战后、调息与丹药</legend><div class="balance-field-grid"><label v-for="parameter in V2_BALANCE_PARAMETERS" :key="parameter.key"><span>{{ parameter.label }}</span><input v-model.number="draft[parameter.key]" type="number" :min="parameter.min" :max="parameter.max" :step="parameter.step" /><small>{{ parameter.unit === '%' ? `${Math.round(draft[parameter.key] * 100)}%` : parameter.unit }}</small></label></div></fieldset>
+      <fieldset><legend>法力恢复、战后、调息与丹药</legend><div class="balance-field-grid"><label v-for="parameter in V2_BALANCE_PARAMETERS" :key="parameter.key"><span>{{ parameter.label }}</span><input v-model.number="draft[parameter.key]" type="number" :min="parameter.min" :max="parameter.max" :step="parameter.step" /><small>{{ parameter.unit === '%' ? `${Math.round(draft[parameter.key] * 100)}%` : parameter.unit }}</small></label></div></fieldset>
       <div v-if="recoveryPreview" class="balance-preview"><div><span>当前角色</span><strong>等级 {{ recoveryPreview.hp.level }} · 体魄 {{ recoveryPreview.hp.attribute }} · 神识 {{ recoveryPreview.mp.attribute }}</strong></div><div><span>预计气血恢复</span><strong>{{ recoveryPreview.hp.calculatedAmount }} / {{ recoveryPreview.hp.maximum }}（{{ (recoveryPreview.hp.calculatedAmount / recoveryPreview.hp.maximum * 100).toFixed(1) }}%）</strong></div><div><span>预计法力恢复</span><strong>{{ recoveryPreview.mp.calculatedAmount }} / {{ recoveryPreview.mp.maximum }}（{{ recoveryPreview.mp.maximum ? (recoveryPreview.mp.calculatedAmount / recoveryPreview.mp.maximum * 100).toFixed(1) : '0.0' }}%）</strong></div></div>
     </div>
 

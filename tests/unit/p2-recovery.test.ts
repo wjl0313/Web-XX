@@ -2,8 +2,10 @@ import { describe, expect, it } from 'vitest'
 
 import {
   V2_TECHNIQUES,
+  advanceV2PassiveMana,
   advanceV2Rest,
   createEmptyElementResistances,
+  getV2PassiveManaPerSecond,
   getV2RestRecoveryPerSecond,
   isV2Resting,
   resolveV2Healing,
@@ -119,5 +121,51 @@ describe('P2 治疗功法独立公式', () => {
     expect(result.recovered).toBeGreaterThan(0)
     expect(result.character.mp).toBe(Number(source.mp) - V2_TECHNIQUES.verdant_rejuvenation.manaCost)
     expect(useV2RestHealingTechnique(source, 'scarlet_flame_art')).toBeNull()
+  })
+})
+
+describe('P2 场景被动法力恢复', () => {
+  it('恢复速度随神识、场景灵力充沛度和当前境界提升', () => {
+    const lowSpirit = recoveryCharacter()
+    lowSpirit.abilities = { ...(lowSpirit.abilities as Record<string, unknown>), wis: 10 }
+    const highSpirit = recoveryCharacter()
+    highSpirit.abilities = { ...(highSpirit.abilities as Record<string, unknown>), wis: 80 }
+    const highZone = recoveryCharacter()
+    highZone.zone = 40
+    highZone.abilities = { ...(highZone.abilities as Record<string, unknown>), wis: 10 }
+    const highRealm = recoveryCharacter()
+    const progression = highRealm.v2Progression as Record<string, unknown>
+    progression.realm = {
+      realmId: 'foundation-early',
+      cultivation: 0,
+      cultivationRequired: 1_100,
+      breakthroughs: 13,
+    }
+    highRealm.abilities = { ...(highRealm.abilities as Record<string, unknown>), wis: 10 }
+
+    expect(getV2PassiveManaPerSecond(highSpirit)).toBeGreaterThan(getV2PassiveManaPerSecond(lowSpirit))
+    expect(getV2PassiveManaPerSecond(highZone)).toBeGreaterThan(getV2PassiveManaPerSecond(lowSpirit))
+    expect(getV2PassiveManaPerSecond(highRealm)).toBeGreaterThan(getV2PassiveManaPerSecond(lowSpirit))
+  })
+
+  it('按时间累计恢复法力，并受最大法力上限约束', () => {
+    const source = recoveryCharacter()
+    source.maxMp = 500
+    source.mp = 100
+    source.abilities = { ...(source.abilities as Record<string, unknown>), wis: 50 }
+    source.v2LastManaRegenAt = 1_000
+    const result = advanceV2PassiveMana(source, 5_000)
+    expect(result.elapsedMs).toBe(4_000)
+    expect(result.recovered).toBeGreaterThan(0)
+    expect(Number(result.character.mp)).toBeGreaterThan(100)
+    expect(Number(result.character.mp)).toBeLessThanOrEqual(500)
+    expect(Number(result.character.v2LastManaRegenAt)).toBe(5_000)
+  })
+
+  it('调息只恢复气血，不恢复法力', () => {
+    const source = startV2Rest(recoveryCharacter(), 'manual', 1_000)
+    const result = advanceV2Rest(source, 4_000)
+    expect(Number(result.character.mp)).toBe(Number(source.mp))
+    expect(Number(result.character.hp)).toBeGreaterThan(Number(source.hp))
   })
 })

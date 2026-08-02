@@ -1,7 +1,8 @@
 import type { LegacyCharacterSave } from '../../save/types'
+import { P2_REALMS, getV2ProgressionState } from '../../domain/progression'
 import { resolveV2Healing } from './battle.rules'
 import { createV2PlayerActor, getV2CharacterTechniqueIds } from './character.adapter'
-import { V2_TECHNIQUES } from './content'
+import { V2_TECHNIQUES, V2_ZONES } from './content'
 import { resolveV2HealingPillAmount } from './healing.rules'
 import { getV2BalanceConfig } from './balance.config'
 import { getV2TechniqueCatalog } from './balance.config'
@@ -73,6 +74,59 @@ export function getV2RestRecoveryPerSecond(character: LegacyCharacterSave): numb
     configuration.restMinimumPerSecond,
     Math.floor(getV2Physique(character) / configuration.restPhysiqueDivisor),
   )
+}
+
+export function getV2ZoneSpiritualAbundance(
+  zoneId: string,
+  character?: LegacyCharacterSave | null,
+): number {
+  const configuration = getV2BalanceConfig(character)
+  const zone = V2_ZONES.find((entry) => entry.id === zoneId) || V2_ZONES[0]
+  return Math.max(0.1, Number(configuration.zoneAbundance[zoneId] ?? zone?.spiritualAbundance ?? 1))
+}
+
+export function getV2CurrentZoneSpiritualAbundance(character: LegacyCharacterSave): number {
+  const zone = V2_ZONES.find((entry) => entry.legacyZoneIndex === Number(record(character).zone || 0)) || V2_ZONES[0]
+  return getV2ZoneSpiritualAbundance(zone.id, character)
+}
+
+export function getV2PassiveManaPerSecond(character: LegacyCharacterSave): number {
+  const configuration = getV2BalanceConfig(character)
+  const zone = V2_ZONES.find((entry) => entry.legacyZoneIndex === Number(record(character).zone || 0)) || V2_ZONES[0]
+  const abundance = getV2ZoneSpiritualAbundance(zone.id, character)
+  const spirit = Math.max(1, Math.floor(Number(record(character.abilities).wis || 10)))
+  const progression = getV2ProgressionState(character)
+  const realmIndex = Math.max(0, P2_REALMS.findIndex((realm) => realm.id === progression.realm.realmId))
+  const raw = configuration.manaRegenBasePerSecond + spirit * abundance * configuration.manaRegenSpiritScale
+  const perSecond = raw * (1 + realmIndex * configuration.manaRegenRealmScale)
+  return Math.max(configuration.manaRegenMinimumPerSecond, Math.floor(perSecond * 100) / 100)
+}
+
+export interface V2PassiveManaResult {
+  character: LegacyCharacterSave
+  recovered: number
+  elapsedMs: number
+}
+
+export function advanceV2PassiveMana(
+  source: LegacyCharacterSave,
+  now = Date.now(),
+): V2PassiveManaResult {
+  const next = clone(source)
+  const last = Math.max(0, Math.floor(Number(record(next).v2LastManaRegenAt || 0)))
+  const timestamp = Math.max(0, Math.floor(now))
+  if (last <= 0) {
+    next.v2LastManaRegenAt = timestamp
+    return { character: next, recovered: 0, elapsedMs: 0 }
+  }
+  const elapsedMs = Math.max(0, timestamp - last)
+  if (elapsedMs <= 0) return { character: next, recovered: 0, elapsedMs: 0 }
+  const maxMp = Math.max(0, Math.floor(Number(next.maxMp || 0)))
+  const mpBefore = Math.max(0, Math.min(maxMp, Math.floor(Number(next.mp || 0))))
+  const recovered = Math.min(maxMp - mpBefore, Math.floor(getV2PassiveManaPerSecond(next) * elapsedMs / 1_000))
+  next.mp = mpBefore + recovered
+  next.v2LastManaRegenAt = timestamp
+  return { character: next, recovered, elapsedMs }
 }
 
 export function getV2RestThreshold(character: LegacyCharacterSave): number {

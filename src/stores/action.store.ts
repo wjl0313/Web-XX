@@ -2,8 +2,11 @@ import { computed } from 'vue'
 import { defineStore } from 'pinia'
 
 import {
+  advanceV2PassiveMana,
   advanceV2Rest,
   getCharacterRuleset,
+  getV2CurrentZoneSpiritualAbundance,
+  getV2PassiveManaPerSecond,
   getV2RestActionState,
   getV2RestHealingTechniques,
   getV2RestRecoveryPerSecond,
@@ -22,6 +25,12 @@ export const useActionStore = defineStore('action-v2', () => {
 
   const isV2 = computed(() => getCharacterRuleset(saves.activeCharacter) === 'v2')
   const resting = computed(() => isV2.value && isV2Resting(saves.activeCharacter))
+  const manaRecoveryPerSecond = computed(() => saves.activeCharacter && isV2.value
+    ? getV2PassiveManaPerSecond(saves.activeCharacter)
+    : 0)
+  const zoneAbundance = computed(() => saves.activeCharacter && isV2.value
+    ? getV2CurrentZoneSpiritualAbundance(saves.activeCharacter)
+    : null)
   const state = computed(() => getV2RestActionState(saves.activeCharacter))
   const recoveryPerSecond = computed(() => saves.activeCharacter && resting.value
     ? getV2RestRecoveryPerSecond(saves.activeCharacter)
@@ -41,12 +50,28 @@ export const useActionStore = defineStore('action-v2', () => {
 
   function tick(now = Date.now()): number {
     const source = saves.activeCharacter
-    if (!source || !isV2.value || !isV2Resting(source)) return 0
-    const result = advanceV2Rest(source, now)
-    if (result.elapsedTicks <= 0 && !result.completed) return 0
-    saves.replaceActiveCharacter(result.character)
-    persistIfNeeded(now, result.completed)
-    return result.recovered
+    if (!source || !isV2.value) return 0
+    let character = source
+    let recovered = 0
+    const manaResult = advanceV2PassiveMana(character, now)
+    if (manaResult.recovered > 0 || !Number((character as Record<string, unknown>).v2LastManaRegenAt)) {
+      character = manaResult.character
+      recovered += manaResult.recovered
+    }
+    let restCompleted = false
+    if (isV2Resting(character)) {
+      const restResult = advanceV2Rest(character, now)
+      if (restResult.elapsedTicks > 0 || restResult.completed) {
+        character = restResult.character
+        recovered += restResult.recovered
+        restCompleted = restResult.completed
+      }
+    }
+    if (character !== source) {
+      saves.replaceActiveCharacter(character)
+      persistIfNeeded(now, restCompleted)
+    }
+    return recovered
   }
 
   function beginRest(now = Date.now()): boolean {
@@ -95,6 +120,8 @@ export const useActionStore = defineStore('action-v2', () => {
   return {
     isV2,
     resting,
+    manaRecoveryPerSecond,
+    zoneAbundance,
     state,
     recoveryPerSecond,
     remainingSeconds,

@@ -1,9 +1,15 @@
 import { createSeededRandom } from '../../rng'
 import type { LegacyCharacterSave } from '../../save/types'
-import { V2_ENEMIES } from './content'
+import { V2_ENEMIES, V2_ZONES } from './content'
 import { normalizeV2AutoConfiguration, prepareV2AutoEncounter, simulateV2AutoEncounter, type V2AutoStopReason } from './auto-battle'
 import { applyV2RewardBundle, createV2RewardBundle } from './reward.rules'
-import { advanceV2Rest, getV2RestActionState, getV2RestRemainingMs, isV2Resting } from './recovery.rules'
+import {
+  advanceV2PassiveMana,
+  advanceV2Rest,
+  getV2RestActionState,
+  getV2RestRemainingMs,
+  isV2Resting,
+} from './recovery.rules'
 
 export const V2_OFFLINE_EXACT_LIMIT_MS = 15 * 60_000
 export const V2_OFFLINE_MAX_MS = 8 * 60 * 60_000
@@ -60,15 +66,18 @@ export function simulateV2Offline(
   let stopReason: V2OfflineSummary['stopReason'] = '离线时间耗尽'
   let simulatedMs = 0
   const simulationEpoch = 1_000_000
+  character = advanceV2PassiveMana(character, simulationEpoch).character
 
   const exactBudget = mode === 'exact' ? Math.max(0, Math.floor(elapsedMs / 20_000)) : 12
   let roundsTotal = 0
   for (let index = 0; index < exactBudget && simulatedMs < elapsedMs; index += 1) {
+    character = advanceV2PassiveMana(character, simulationEpoch + simulatedMs).character
     if (isV2Resting(character)) {
       const state = getV2RestActionState(character)!
       const recoveryDuration = Math.min(elapsedMs - simulatedMs, getV2RestRemainingMs(character))
       character = advanceV2Rest(character, state.lastRecoveredAt + recoveryDuration).character
       simulatedMs += recoveryDuration
+      character = advanceV2PassiveMana(character, simulationEpoch + simulatedMs).character
       if (isV2Resting(character) || simulatedMs >= elapsedMs) break
     }
     const encounter = simulateV2AutoEncounter(character, {
@@ -80,6 +89,7 @@ export function simulateV2Offline(
     fights += 1
     roundsTotal += encounter.state.round
     simulatedMs += Math.max(8_000, encounter.state.round * 1_500)
+    character = advanceV2PassiveMana(character, simulationEpoch + simulatedMs).character
     if (encounter.result.outcome === 'victory') victories += 1
     else defeats += 1
     if (encounter.stopReason) {
@@ -99,12 +109,11 @@ export function simulateV2Offline(
       if (!random.chance(winRate)) {
         defeats += 1
         character.hp = 1
-        stopReason = '角色死亡'
-        break
+        continue
       }
       victories += 1
       const zone = config.zoneIndex
-      const candidates = Object.values(V2_ENEMIES).filter((enemy) => enemy.zoneId === ['green_bamboo_grove', 'howlfang_cavern', 'withered_spring_manor', 'dread_ancient_hall', 'asura_abyss'][zone] && enemy.rank !== 'boss')
+      const candidates = Object.values(V2_ENEMIES).filter((enemy) => enemy.zoneId === V2_ZONES[zone]?.id && enemy.rank !== 'boss')
       const enemy = random.pick(candidates)
       const reward = createV2RewardBundle(enemy, character, random, false)
       const applied = applyV2RewardBundle(character, reward, `${options.seed}:aggregate:${index}`, 'offline')
@@ -115,6 +124,8 @@ export function simulateV2Offline(
       }
     }
   }
+
+  character = advanceV2PassiveMana(character, simulationEpoch + elapsedMs).character
 
   const after = snapshot(character)
   character.v2LastOfflineAt = Date.now()

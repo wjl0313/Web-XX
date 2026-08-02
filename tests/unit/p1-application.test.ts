@@ -53,7 +53,7 @@ describe('P1 Application Service', () => {
     expect(completed.completedState!.events.some((event) => event.type === 'RestStarted')).toBe(true)
   })
 
-  it('只允许第 1 与第 5 个 P1 区域挑战首领', () => {
+  it('全部开放的首领区域都可挑战对应区域首领', () => {
     const application = new V2BattleApplication()
     const character = createNativeCharacter({
       name: '临渊', race: '火天灵根', classId: '炼体士', ruleset: 'v2', rootId: '火天灵根',
@@ -65,13 +65,12 @@ describe('P1 Application Service', () => {
     expect(firstBoss.state?.encounter.enemyContentId).toBe('vermin_tyrant')
 
     character.zone = 1
-    const missingBoss = application.startEncounter(character, null, { seed: 'boss-zone-1', boss: true })
-    expect(missingBoss.applied).toBe(false)
-    expect(missingBoss.validationReason).toBe('当前区域没有可挑战的首领。')
+    const secondBoss = application.startEncounter(character, null, { seed: 'boss-zone-1', boss: true })
+    expect(secondBoss.state?.encounter.enemyContentId).toBe('bog_sovereign')
 
     character.zone = 4
     const finalBoss = application.startEncounter(character, null, { seed: 'boss-zone-4', boss: true })
-    expect(finalBoss.state?.encounter.enemyContentId).toBe('abyss_lord')
+    expect(finalBoss.state?.encounter.enemyContentId).toBe('ironhand_the_unbroken')
   })
 
   it('先结算战胜恢复，再按恢复后的气血判断 50% 调息阈值', () => {

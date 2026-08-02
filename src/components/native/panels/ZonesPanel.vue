@@ -3,7 +3,13 @@ import { computed, ref } from 'vue'
 import { Bookmark, Check, Crown, LockKeyhole, MapPin, Search, Target } from 'lucide-vue-next'
 
 import { BOSS_BY_ZONE, ZONES, translateLegacyText } from '../../../game-core/data'
-import { P2_DUNGEON_MODIFIERS, V2_ENEMIES, V2_ZONES, type P2DungeonModifierId } from '../../../game-core/rulesets'
+import {
+  P2_DUNGEON_MODIFIERS,
+  V2_ENEMIES,
+  V2_ZONES,
+  getV2ZoneSpiritualAbundance,
+  type P2DungeonModifierId,
+} from '../../../game-core/rulesets'
 import { useActivitiesStore } from '../../../stores/activities.store'
 import { useActionStore } from '../../../stores/action.store'
 import { useAfkStore } from '../../../stores/afk.store'
@@ -43,6 +49,7 @@ const zones = computed(() => ZONES.map((zone, index) => {
     eliteName: isV2.value && v2Zone ? V2_ENEMIES[v2Zone.eliteId]?.displayName || v2Zone.eliteId : null,
     boss: isV2.value ? v2Boss : legacyBoss,
     bossName: isV2.value ? v2Boss?.displayName || null : legacyBoss ? translateLegacyText(legacyBoss.name) : null,
+    abundance: isV2.value && v2Zone ? getV2ZoneSpiritualAbundance(v2Zone.id, character.value) : null,
   }
 }).filter((entry) => {
   const needle = query.value.trim().toLowerCase()
@@ -100,7 +107,7 @@ function challengeDungeon() {
           <div><h3>{{ entry.name }}</h3><span>{{ entry.enabled ? `修为等级 ${entry.minLvl}–${entry.maxLvl}` : '尚未开放' }}</span></div>
           <p>{{ entry.enabled ? entry.description : '该历练区域尚未开放。' }}</p>
           <small v-if="entry.enabled">妖兽：{{ entry.mobNames.join(' · ') }}<template v-if="entry.eliteName"> · 精英：{{ entry.eliteName }}</template></small>
-          <div class="zone-yields"><template v-if="isV2"><span>单人斗法</span><span>装备、功法与灵草掉落</span></template><template v-else><span>修为倍率 ×{{ entry.zone.xpMult }}</span><span>灵石倍率 ×{{ entry.zone.goldMult }}</span></template><span v-if="entry.boss"><Crown :size="13" />首领：{{ entry.bossName }}</span></div>
+          <div class="zone-yields"><template v-if="isV2"><span>单人斗法</span><span>装备、功法与灵草掉落</span><span v-if="entry.abundance">灵力充沛 ×{{ entry.abundance }}</span></template><template v-else><span>修为倍率 ×{{ entry.zone.xpMult }}</span><span>灵石倍率 ×{{ entry.zone.goldMult }}</span></template><span v-if="entry.boss"><Crown :size="13" />首领：{{ entry.bossName }}</span></div>
         </div>
         <div class="zone-row__actions">
           <button class="button button--secondary" type="button" :disabled="!entry.enabled || Number(character.level) < entry.minLvl || combat.inCombat || actions.resting || Number(character.zone) === entry.index" @click="travel(entry.index)">{{ Number(character.zone) === entry.index ? '当前区域' : !entry.enabled ? '尚未开放' : Number(character.level) < entry.minLvl ? '尚未解锁' : '前往' }}</button>

@@ -6,6 +6,7 @@ import {
   V2_OFFLINE_MAX_MS,
   applyV2RewardBundle,
   createV2RewardBundle,
+  isV2Resting,
   rollP2Loot,
   simulateV2AutoEncounter,
   simulateV2Offline,
@@ -96,6 +97,43 @@ describe('P2 自动历练与离线模拟', () => {
     const left = simulateV2Offline(source, { elapsedMs: 2 * 60 * 60_000, seed: 'fixed-seed' })
     const right = simulateV2Offline(source, { elapsedMs: 2 * 60 * 60_000, seed: 'fixed-seed' })
     expect(left.summary).toEqual(right.summary)
+  })
+
+  it('战败只触发调息，不再作为自动历练的停止原因', () => {
+    const source = createNativeCharacter({
+      name: '战败续练修士', race: '五行伪灵根', classId: '炼体士', ruleset: 'v2',
+      rootId: '五行伪灵根', talentSeed: 'defeat-continue', now: 1,
+    })
+    source.atk = 1
+    source.def = 0
+    source.maxHp = 100
+    source.hp = 30
+    source.maxMp = 0
+    source.mp = 0
+    const result = simulateV2AutoEncounter(source, {
+      seed: 'defeat-continue',
+      forceEnemyId: 'spirit_field_rat',
+    })
+    expect(result.result.outcome).toBe('defeat')
+    expect(result.stopReason).toBeNull()
+    expect(result.character.hp).toBe(1)
+    expect(isV2Resting(result.character)).toBe(true)
+  })
+
+  it('离线模拟战败后继续推进，不再因角色死亡截断收益', () => {
+    const source = createNativeCharacter({
+      name: '离线续练修士', race: '五行伪灵根', classId: '炼体士', ruleset: 'v2',
+      rootId: '五行伪灵根', talentSeed: 'offline-defeat-continue', now: 1,
+    })
+    source.atk = 1
+    source.def = 0
+    source.maxHp = 10
+    source.hp = 10
+    source.maxMp = 0
+    source.mp = 0
+    const result = simulateV2Offline(source, { elapsedMs: 30 * 60_000, seed: 'offline-defeat-continue' })
+    expect(result.summary.defeats).toBeGreaterThan(0)
+    expect(result.summary.stopReason).toBe('离线时间耗尽')
   })
 })
 
